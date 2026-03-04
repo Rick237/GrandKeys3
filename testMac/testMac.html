@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keyboard Shortcut Test Page</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 0;
+      background: #0b0f17;
+      color: #e9eefc;
+    }
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      background: #0b0f17;
+      border-bottom: 1px solid #223052;
+    }
+    .topinner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+    h1 { font-size: 18px; margin: 0; }
+    .title { display: flex; flex-wrap: wrap; gap: 14px; align-items: baseline; }
+    .timer {
+      font-weight: 900;
+      font-size: 16px;
+      padding: 6px 10px;
+      border: 1px solid #223052;
+      border-radius: 10px;
+      background: #0f1626;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .keycodeWrap { display:flex; gap: 14px; align-items: baseline; }
+    .label { opacity: 0.8; font-weight: 650; font-size: 12px; letter-spacing: .2px; }
+    .keycode {
+      font-size: 22px;
+      font-weight: 1000;
+      letter-spacing: 0.3px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .controls {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
+    }
+    button {
+      background: #1b2a4a;
+      border: 1px solid #2a3a61;
+      color: #e9eefc;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    button:hover { background: #22345c; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 14px;
+    }
+
+    .card {
+      background: #0f1626;
+      border: 1px solid #223052;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .progress {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      opacity: .85;
+    }
+
+    .shortcutBox {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px dashed #2a3a61;
+      background: #0b1220;
+    }
+    .shortcutHidden { opacity: 0.55; font-style: italic; }
+    .shortcutText {
+      font-size: 36px;
+      font-weight: 1000;
+      letter-spacing: .6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .status { margin-top: 12px; min-height: 26px; font-weight: 950; }
+    .ok { color: #77f2a3; }
+    .bad { color: #ff8f8f; }
+    .warn { color: #ffd27a; }
+
+    .hint {
+      margin-top: 8px;
+      opacity: 0.85;
+      font-weight: 650;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .side { position: sticky; top: 74px; align-self: start; }
+    .stat {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid #223052;
+      background: #0b1220;
+      margin-bottom: 10px;
+    }
+    .stat .big {
+      font-size: 28px;
+      font-weight: 1000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .small { opacity: 0.75; font-size: 13px; }
+
+    .tableWrap {
+      margin-top: 14px;
+      border-top: 1px solid #223052;
+      padding-top: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid #1a2540;
+      padding: 8px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { opacity: .8; font-weight: 900; }
+    .tag {
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #223052;
+      background: #0f1626;
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .tag.ok { border-color:#2c6b46; background:#0f1f17; color:#77f2a3; }
+    .tag.bad { border-color:#6b2c2c; background:#1f0f0f; color:#ff8f8f; }
+    .tag.skip { border-color:#5a5a2a; background:#1f1f0f; color:#ffd27a; }
+    .tag.todo { opacity: .7; }
+
+    .footerNote {
+      margin-top: 10px;
+      opacity: 0.75;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="topinner">
+      <div class="title">
+        <h1>Keyboard Shortcut Test Page</h1>
+        <div class="timer" id="timer">00:00.0</div>
+
+        <div class="keycodeWrap">
+          <div>
+            <div class="label">KeyCode</div>
+            <div class="keycode" id="keycode">—</div>
+          </div>
+          <div>
+            <div class="label">Last key event received</div>
+            <div class="keycode" id="lastKey">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="btnStart">Start</button>
+        <button id="btnPrev" disabled>Prev</button>
+        <button id="btnNext" disabled>Next</button>
+        <button id="btnShow" disabled>Show Shortcut</button>
+        <button id="btnNoEvent" disabled>No Key Event</button>
+        <button id="btnSkip" disabled>Skip</button>
+        <button id="btnReset">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="label">Shortcut (hidden by default)</div>
+          <div class="small">Press the keys. If the browser steals the shortcut and nothing is detected, click “No Key Event”.</div>
+        </div>
+        <div class="progress" id="progress">0 / 0</div>
+      </div>
+
+      <div class="shortcutBox">
+        <div id="shortcutHidden" class="shortcutHidden">Shortcut is hidden</div>
+        <div id="shortcutText" class="shortcutText" style="display:none;">—</div>
+      </div>
+
+      <div class="status" id="status"></div>
+      <div class="hint" id="hint"></div>
+
+      <div class="tableWrap">
+        <div class="row">
+          <div class="label">All shortcuts</div>
+          <div class="small">Status updates as you test each one.</div>
+        </div>
+        <div style="overflow:auto; max-height: 420px; margin-top:10px;">
+          <table id="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Status</th>
+                <th>KeyCode</th>
+                <th>Shortcut</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footerNote">
+        <b>Note:</b> Some shortcuts are reserved by the browser/OS (example: Alt+F4, Ctrl+L, Ctrl+T). Those often won’t reach the page.
+        Use <b>No Key Event</b> to record that the browser/OS intercepted it.
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="stat">
+        <div class="label">Correct</div>
+        <div class="big" id="correct">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Speed (between key events)</div>
+        <div class="big" id="speed">—</div>
+        <div class="small" id="avgSpeed">avg: —</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Errors</div>
+        <div class="big" id="errors">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">No Key Event</div>
+        <div class="big" id="noevent">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Loaded</div>
+        <div class="big" id="loaded">0</div>
+        <div class="small">shortcuts</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Accuracy</div>
+        <div class="big" id="acc">0%</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ============================
+   Load + Parse XML
+   ============================ */
+function parseShortcutsXml(xmlText) {
+  const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+  const parseError = doc.querySelector("parsererror");
+  if (parseError) throw new Error("XML parse error");
+
+  const nodes = Array.from(doc.querySelectorAll("KeyboardShortcut"));
+  const out = nodes.map(n => ({
+    KeyCode: n.getAttribute("KeyCode") || "",
+    Shortcut: (n.getAttribute("Shortcut") || "").trim(),
+    ExecutorIndex: n.getAttribute("ExecutorIndex") || "",
+    SpecialExec: n.getAttribute("SpecialExec") || ""
+  })).filter(x => x.Shortcut.length > 0);
+
+  // de-dupe by Shortcut text (keep first)
+  const seen = new Set();
+  const deduped = [];
+  for (const x of out) {
+    const k = x.Shortcut;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    deduped.push(x);
+  }
+  return deduped;
+}
+
+async function loadBundledXml() {
+  const res = await fetch("./ShortCutsAllMac.xml", { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch KeyboardShortCuts.xml");
+  const text = await res.text();
+  return parseShortcutsXml(text);
+}
+
+/* ============================
+   Matching expected key events
+   ============================ */
+function normalizeExpected(shortcutText) {
+  const raw = shortcutText.trim();
+  const parts = raw.split("+").map(p => p.trim());
+  const keyPart = parts[parts.length - 1];
+
+  return {
+    raw,
+    ctrl: parts.includes("Ctrl"),
+    alt: parts.includes("Alt"),
+    key: normalizeKeyName(keyPart),
+    code: normalizeCodeName(keyPart)
+  };
+}
+
+function normalizeKeyName(name) {
+  // letters
+  if (/^[A-Z]$/.test(name)) return name.toLowerCase();
+  // function keys
+  if (/^F\d{1,2}$/.test(name)) return name;
+  // digits
+  if (/^\d$/.test(name)) return name;
+
+  const map = {
+    Left: "ArrowLeft",
+    Right: "ArrowRight",
+    Up: "ArrowUp",
+    Down: "ArrowDown",
+    PageUp: "PageUp",
+    PageDown: "PageDown",
+    Space: " ",
+    Enter: "Enter",
+    Escape: "Escape",
+    Backspace: "Backspace",
+    Delete: "Delete",
+    Comma: ",",
+    Period: ".",
+    Slash: "/",
+    Minus: "-",
+    Equal: "=",
+    LeftBracket: "[",
+    RightBracket: "]",
+    kpAdd: "+",
+    kpSubtract: "-",
+    kpDivide: "/",
+    kpDecimal: "."
+  };
+  return map[name] ?? name;
+}
+
+function normalizeCodeName(name) {
+  const codeMap = {
+    kpAdd: "NumpadAdd",
+    kpSubtract: "NumpadSubtract",
+    kpDivide: "NumpadDivide",
+    kpDecimal: "NumpadDecimal"
+  };
+  return codeMap[name] ?? null;
+}
+
+function matchesExpected(e, expected) {
+  if (!!e.ctrlKey !== !!expected.ctrl) return false;
+  if (!!e.altKey !== !!expected.alt) return false;
+
+  if (expected.code) return e.code === expected.code;
+
+  const actualKey = /^[A-Z]$/.test(e.key) ? e.key.toLowerCase() : e.key;
+  return actualKey === expected.key;
+}
+
+function describePressed(e) {
+  const mods = [];
+  if (e.ctrlKey) mods.push("Ctrl");
+  if (e.altKey) mods.push("Alt");
+  const k = e.key === " " ? "Space" : e.key;
+  return mods.length ? `${mods.join("+")}+${k}` : k;
+}
+
+/* ============================
+   UI + Test Flow
+   ============================ */
+const elTimer = document.getElementById("timer");
+const elKeycode = document.getElementById("keycode");
+const elLastKey = document.getElementById("lastKey");
+const elShortcutHidden = document.getElementById("shortcutHidden");
+const elShortcutText = document.getElementById("shortcutText");
+const elStatus = document.getElementById("status");
+const elHint = document.getElementById("hint");
+const elProgress = document.getElementById("progress");
+const tbody = document.getElementById("tbody");
+
+const elCorrect = document.getElementById("correct");
+const elErrors = document.getElementById("errors");
+const elNoEvent = document.getElementById("noevent");
+const elSpeed = document.getElementById("speed");
+const elAvgSpeed = document.getElementById("avgSpeed");
+const elLoaded = document.getElementById("loaded");
+const elAcc = document.getElementById("acc");
+
+const btnStart = document.getElementById("btnStart");
+const btnPrev = document.getElementById("btnPrev");
+const btnNext = document.getElementById("btnNext");
+const btnShow = document.getElementById("btnShow");
+const btnNoEvent = document.getElementById("btnNoEvent");
+const btnSkip = document.getElementById("btnSkip");
+const btnReset = document.getElementById("btnReset");
+
+let shortcuts = [];
+let statuses = []; // "todo" | "ok" | "err" | "noevent" | "skip"
+let index = 0;
+let current = null;
+let showShortcut = false;
+
+let started = false;
+let startTime = 0;
+let timerId = null;
+
+let correct = 0;
+let errors = 0;
+let noevent = 0;
+let totalAttempts = 0;
+
+let lastKeyTime = null;
+let lastDeltaMs = null;
+let deltas = [];
+
+function setStatus(msg, cls) {
+  elStatus.className = "status " + (cls || "");
+  elStatus.textContent = msg || "";
+}
+
+function fmtTime(ms) {
+  const totalSeconds = ms / 1000;
+  const m = Math.floor(totalSeconds / 60);
+  const s = Math.floor(totalSeconds % 60);
+  const tenths = Math.floor((ms % 1000) / 100);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${tenths}`;
+}
+
+function updateTimer() {
+  if (!started) return;
+  elTimer.textContent = fmtTime(performance.now() - startTime);
+}
+
+function updateStats() {
+  elCorrect.textContent = String(correct);
+  elErrors.textContent = String(errors);
+  elNoEvent.textContent = String(noevent);
+  elLoaded.textContent = String(shortcuts.length);
+
+  const acc = totalAttempts ? Math.round((correct / totalAttempts) * 100) : 0;
+  elAcc.textContent = `${acc}%`;
+
+  elSpeed.textContent = lastDeltaMs == null ? "—" : `${Math.round(lastDeltaMs)} ms`;
+  if (!deltas.length) elAvgSpeed.textContent = "avg: —";
+  else {
+    const avg = deltas.reduce((a,b)=>a+b,0) / deltas.length;
+    elAvgSpeed.textContent = `avg: ${Math.round(avg)} ms`;
+  }
+
+  elProgress.textContent = shortcuts.length ? `${index + 1} / ${shortcuts.length}` : "0 / 0";
+}
+
+function renderShortcutVisibility() {
+  if (!current) {
+    elShortcutHidden.style.display = "";
+    elShortcutText.style.display = "none";
+    elShortcutText.textContent = "—";
+    btnShow.textContent = "Show Shortcut";
+    return;
+  }
+  if (showShortcut) {
+    elShortcutHidden.style.display = "none";
+    elShortcutText.style.display = "";
+    elShortcutText.textContent = current.Shortcut;
+    btnShow.textContent = "Hide Shortcut";
+  } else {
+    elShortcutHidden.style.display = "";
+    elShortcutText.style.display = "none";
+    elShortcutText.textContent = current.Shortcut;
+    btnShow.textContent = "Show Shortcut";
+  }
+}
+
+function renderTable() {
+  tbody.innerHTML = "";
+  shortcuts.forEach((s, i) => {
+    const tr = document.createElement("tr");
+    const st = statuses[i] || "todo";
+    const tagClass = st === "ok" ? "ok" : st === "err" ? "bad" : st === "skip" || st === "noevent" ? "skip" : "todo";
+    const tagText =
+      st === "ok" ? "OK" :
+      st === "err" ? "ERR" :
+      st === "noevent" ? "NO EVENT" :
+      st === "skip" ? "SKIP" : "TODO";
+
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td><span class="tag ${tagClass}">${tagText}</span></td>
+      <td>${escapeHtml(s.KeyCode || "")}</td>
+      <td>${escapeHtml(s.Shortcut)}</td>
+    `;
+
+    // click row to jump
+    tr.style.cursor = "pointer";
+    tr.addEventListener("click", () => {
+      if (!started) return;
+      index = i;
+      loadCurrent();
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+
+function loadCurrent() {
+  if (!shortcuts.length) return;
+  current = shortcuts[index];
+  current.expected = normalizeExpected(current.Shortcut);
+
+  // KeyCode always on top
+  elKeycode.textContent = current.KeyCode || "—";
+
+  // Shortcut hidden by default
+  showShortcut = false;
+  renderShortcutVisibility();
+
+  // Hint line
+  const extra = [];
+  if (current.ExecutorIndex) extra.push(`ExecutorIndex: ${current.ExecutorIndex}`);
+  if (current.SpecialExec) extra.push(`SpecialExec: ${current.SpecialExec}`);
+  elHint.textContent = extra.join(" • ");
+
+  setStatus("Waiting for key press…", "");
+  updateStats();
+  highlightCurrentRow();
+}
+
+function highlightCurrentRow() {
+  // simple highlight by rebuilding row styles
+  Array.from(tbody.children).forEach((tr, i) => {
+    tr.style.background = (i === index) ? "#101c33" : "";
+  });
+}
+
+function markStatus(st) {
+  const prev = statuses[index];
+  statuses[index] = st;
+
+  // If re-marking, adjust counters carefully: keep it simple — only count on key events / manual buttons,
+  // and don't try to "undo" old counts.
+  renderTable();
+  highlightCurrentRow();
+}
+
+function next() {
+  if (index < shortcuts.length - 1) {
+    index += 1;
+    loadCurrent();
+  } else {
+    setStatus("✅ Finished (end of list).", "ok");
+  }
+}
+
+function prev() {
+  if (index > 0) {
+    index -= 1;
+    loadCurrent();
+  }
+}
+
+/* ============================
+   Key handling
+   ============================ */
+window.addEventListener("keydown", (e) => {
+  if (!started || !current) return;
+
+  // Try to stop common browser behaviors (won't stop everything)
+  e.preventDefault();
+
+  // speed between key events
+  const now = performance.now();
+  if (lastKeyTime != null) {
+    lastDeltaMs = now - lastKeyTime;
+    deltas.push(lastDeltaMs);
+    if (deltas.length > 300) deltas.shift();
+  }
+  lastKeyTime = now;
+
+  const pressed = describePressed(e);
+  elLastKey.textContent = pressed;
+
+  totalAttempts += 1;
+
+  const ok = matchesExpected(e, current.expected);
+  if (ok) {
+    correct += 1;
+    setStatus("✅ Correct (matched key event).", "ok");
+    markStatus("ok");
+    updateStats();
+    setTimeout(next, 200);
+  } else {
+    errors += 1;
+    setStatus(`❌ Error (received: ${pressed}).`, "bad");
+    markStatus("err");
+    updateStats();
+  }
+});
+
+/* ============================
+   Buttons
+   ============================ */
+btnStart.addEventListener("click", () => {
+  if (!shortcuts.length) {
+    setStatus("No shortcuts loaded. Make sure KeyboardShortCuts.xml is in the same folder and you are using a local server.", "bad");
+    return;
+  }
+
+  if (!started) {
+    started = true;
+    startTime = performance.now();
+    timerId = setInterval(updateTimer, 100);
+  }
+
+  btnStart.disabled = true;
+  btnPrev.disabled = false;
+  btnNext.disabled = false;
+  btnShow.disabled = false;
+  btnNoEvent.disabled = false;
+  btnSkip.disabled = false;
+
+  setStatus("Started. Press the keys for each test.", "");
+  loadCurrent();
+});
+
+btnPrev.addEventListener("click", () => started && prev());
+btnNext.addEventListener("click", () => started && next());
+
+btnShow.addEventListener("click", () => {
+  if (!started || !current) return;
+  showShortcut = !showShortcut;
+  renderShortcutVisibility();
+});
+
+btnNoEvent.addEventListener("click", () => {
+  if (!started || !current) return;
+  noevent += 1;
+  setStatus("⚠️ Marked: No key event received (likely browser/OS reserved).", "warn");
+  markStatus("noevent");
+  updateStats();
+  setTimeout(next, 150);
+});
+
+btnSkip.addEventListener("click", () => {
+  if (!started || !current) return;
+  setStatus("⚠️ Skipped.", "warn");
+  markStatus("skip");
+  updateStats();
+  setTimeout(next, 150);
+});
+
+btnReset.addEventListener("click", () => {
+  started = false;
+  if (timerId) clearInterval(timerId);
+  timerId = null;
+  elTimer.textContent = "00:00.0";
+
+  correct = 0; errors = 0; noevent = 0; totalAttempts = 0;
+  lastKeyTime = null; lastDeltaMs = null; deltas = [];
+  elLastKey.textContent = "—";
+
+  index = 0;
+  current = null;
+  showShortcut = false;
+
+  btnStart.disabled = false;
+  btnPrev.disabled = true;
+  btnNext.disabled = true;
+  btnShow.disabled = true;
+  btnNoEvent.disabled = true;
+  btnSkip.disabled = true;
+
+  statuses = shortcuts.map(() => "todo");
+  renderTable();
+  renderShortcutVisibility();
+
+  elKeycode.textContent = "—";
+  elHint.textContent = "";
+  setStatus("Reset. Press Start when ready.", "");
+  updateStats();
+});
+
+/* ============================
+   Init: load XML automatically
+   ============================ */
+(async function init() {
+  setStatus("Loading KeyboardShortCuts.xml…", "");
+  updateStats();
+
+  try {
+    shortcuts = await loadBundledXml();
+    statuses = shortcuts.map(() => "todo");
+    renderTable();
+    updateStats();
+    setStatus(`Loaded ${shortcuts.length} shortcuts from KeyboardShortCuts.xml`, "ok");
+  } catch (err) {
+    console.error(err);
+    setStatus(
+      "Could not load KeyboardShortCuts.xml. Make sure you are using a local server (http://...) and the XML is next to index.html.",
+      "bad"
+    );
+  }
+})();
+</script>
+</body>
+</html>

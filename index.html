@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keyboard Shortcut Tester</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body>
+    <div class="topbar">
+      <div class="topinner">
+        <div class="topleft">
+          <h1>Keyboard Shortcut Tester</h1>
+          <div class="timer mono" id="timer">00:00.0</div>
+          <div class="keycodeWrap">
+            <div class="label">KeyCode</div>
+            <div class="keycode mono" id="keycode">—</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="btnStart" disabled>Start</button>
+          <button id="btnStop" disabled>Stop</button>
+          <button id="btnNext" disabled>Next</button>
+          <button id="btnToggleShow" disabled>Show Shortcut</button>
+          <button id="btnMode" disabled title="Current mode shown here">Mode: —</button>
+          <button id="btnReset">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div>
+        <div class="card">
+          <div class="row">
+            <div>
+              <div class="label">Shortcut (hidden by default)</div>
+              <div class="small">
+                Press the keys. Use “Show Shortcut” only if you need to reveal the expected combo.
+              </div>
+            </div>
+            <div class="small mono" id="progress">0 / 0</div>
+          </div>
+
+          <div class="shortcutBox">
+            <div id="shortcutHidden" class="shortcutHidden">Shortcut is hidden</div>
+            <div id="shortcutText" class="shortcutText" style="display:none;">—</div>
+          </div>
+
+          <div class="status" id="status"></div>
+          <div class="small mono" id="hint"></div>
+
+          <div class="log" id="log"></div>
+        </div>
+
+        <div class="card resultsCard" id="resultsCard" style="display:none;">
+          <div class="row">
+            <div>
+              <div class="label">Results</div>
+              <div class="small">Summary of this run.</div>
+            </div>
+            <div class="small mono" id="resultsTime">time: —</div>
+          </div>
+
+          <div class="row mt10">
+            <div class="pill">Attempts: <span class="mono" id="resultsAttempts">0</span></div>
+            <div class="pill">Correct: <span class="mono" id="resultsCorrect">0</span></div>
+            <div class="pill">Errors: <span class="mono" id="resultsErrors">0</span></div>
+            <div class="pill">Accuracy: <span class="mono" id="resultsAcc">0%</span></div>
+          </div>
+
+          <div class="row mt10">
+            <div class="pill">Avg speed: <span class="mono" id="resultsAvg">—</span></div>
+            <div class="pill">Last speed: <span class="mono" id="resultsLast">—</span></div>
+          </div>
+
+          <div class="mt12">
+            <div class="label">Results JSON</div>
+            <textarea id="resultsJson" class="mono" readonly></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="stat">
+          <div class="label">Correct</div>
+          <div class="big mono" id="correct">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Speed (between keypresses)</div>
+          <div class="big mono" id="speed">—</div>
+          <div class="small mono" id="avgSpeed">avg: —</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Errors</div>
+          <div class="big mono" id="errors">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Loaded</div>
+          <div class="big mono" id="loaded">0</div>
+          <div class="small">shortcuts</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Accuracy</div>
+          <div class="big mono" id="acc">0%</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Load status</div>
+          <div class="small mono" id="loadInfo">Loading KeyboardShortCuts.xml…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE PICKER MODAL -->
+    <div class="modalBackdrop" id="modeModal" aria-hidden="true">
+      <div class="modal">
+        <div class="modalTitle">Choose a mode</div>
+        <div class="modalBody small">
+          Pick how you want to run the test.
+        </div>
+
+        <div class="modalOptions">
+          <label class="radio">
+            <input type="radio" name="modeChoice" value="sequential" checked />
+            <span><b>Sequential</b> (go through list in order)</span>
+          </label>
+
+          <label class="radio">
+            <input type="radio" name="modeChoice" value="random" />
+            <span><b>Random</b> (random shortcut each time)</span>
+          </label>
+
+          <label class="radio">
+            <input type="radio" name="modeChoice" value="ten" />
+            <span><b>10 keys</b> (exactly 10 questions)</span>
+          </label>
+        </div>
+
+        <div class="modalOptions" id="tenModeExtra" style="display:none;">
+          <div class="small" style="margin-top:6px;">For “10 keys”, choose selection style:</div>
+          <label class="radio">
+            <input type="radio" name="tenChoice" value="random" checked />
+            <span>Random 10</span>
+          </label>
+          <label class="radio">
+            <input type="radio" name="tenChoice" value="sequential" />
+            <span>Sequential 10</span>
+          </label>
+        </div>
+
+        <div class="modalActions">
+          <button class="btnSecondary" id="btnCancelMode">Cancel</button>
+          <button id="btnConfirmMode">Start</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS MODAL -->
+    <div class="modalBackdrop" id="resultsModal" aria-hidden="true">
+      <div class="modal">
+        <div class="modalTitle">Results</div>
+        <div class="modalBody">
+          <div class="resultsGrid">
+            <div class="pill">Time: <span class="mono" id="mTime">—</span></div>
+            <div class="pill">Attempts: <span class="mono" id="mAttempts">0</span></div>
+            <div class="pill">Correct: <span class="mono" id="mCorrect">0</span></div>
+            <div class="pill">Errors: <span class="mono" id="mErrors">0</span></div>
+            <div class="pill">Accuracy: <span class="mono" id="mAcc">0%</span></div>
+            <div class="pill">Avg speed: <span class="mono" id="mAvg">—</span></div>
+            <div class="pill">Last speed: <span class="mono" id="mLast">—</span></div>
+            <div class="pill">Mode: <span class="mono" id="mMode">—</span></div>
+          </div>
+
+          <div class="mt12">
+            <div class="label">Results JSON</div>
+            <textarea id="mJson" class="mono" readonly></textarea>
+          </div>
+        </div>
+
+        <div class="modalActions">
+          <button class="btnSecondary" id="btnCloseResults">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

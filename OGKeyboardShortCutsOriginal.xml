@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<GMA3 DataVersion="2.2.5.2">
+    <KeyboardShortCuts KeyboardShortcutsActive="No">
+        <KeyboardShortcut KeyCode="PREV" Shortcut="Left" />
+        <KeyboardShortcut KeyCode="NEXT" Shortcut="Right" />
+        <KeyboardShortcut KeyCode="SET" Shortcut="Q" />
+        <KeyboardShortcut KeyCode="UP" Shortcut="Up" />
+        <KeyboardShortcut KeyCode="SELFIX" Shortcut="Ctrl+Alt+F" />
+        <KeyboardShortcut KeyCode="DOWN" Shortcut="Down" />
+        <KeyboardShortcut KeyCode="MENU" Shortcut="F12" />
+        <KeyboardShortcut KeyCode="HIGHLIGHT" Shortcut="H" />
+        <KeyboardShortcut KeyCode="SOLO" Shortcut="Ctrl+Alt+S" />
+        <KeyboardShortcut KeyCode="FREEZE" Shortcut="Alt+F" />
+        <KeyboardShortcut KeyCode="PREVIEW" Shortcut="Ctrl+Alt+P" />
+        <KeyboardShortcut KeyCode="BLIND" Shortcut="B" />
+        <KeyboardShortcut KeyCode="XKEYS" Shortcut="Comma" />
+        <KeyboardShortcut KeyCode="PAGE_UP" Shortcut="PageUp" />
+        <KeyboardShortcut KeyCode="PAGE_DOWN" Shortcut="PageDown" />
+        <KeyboardShortcut KeyCode="LIST" Shortcut="L" />
+        <KeyboardShortcut KeyCode="X1" Shortcut="F1" />
+        <KeyboardShortcut KeyCode="X2" Shortcut="F2" />
+        <KeyboardShortcut KeyCode="X3" Shortcut="F3" />
+        <KeyboardShortcut KeyCode="X4" Shortcut="F4" />
+        <KeyboardShortcut KeyCode="X5" Shortcut="F5" />
+        <KeyboardShortcut KeyCode="X6" Shortcut="F6" />
+        <KeyboardShortcut KeyCode="X7" Shortcut="F7" />
+        <KeyboardShortcut KeyCode="X8" Shortcut="F8" />
+        <KeyboardShortcut KeyCode="X9" />
+        <KeyboardShortcut KeyCode="X10" />
+        <KeyboardShortcut KeyCode="X11" />
+        <KeyboardShortcut KeyCode="X12" />
+        <KeyboardShortcut KeyCode="X13" />
+        <KeyboardShortcut KeyCode="X14" />
+        <KeyboardShortcut KeyCode="X15" />
+        <KeyboardShortcut KeyCode="X16" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="101" Shortcut="Ctrl+F1" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="102" Shortcut="Ctrl+F2" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="103" Shortcut="Ctrl+F3" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="104" Shortcut="Ctrl+F4" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="105" Shortcut="Ctrl+F5" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="106" Shortcut="Ctrl+F6" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="107" Shortcut="Ctrl+F7" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="108" Shortcut="Ctrl+F8" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="109" Shortcut="Ctrl+F9" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="110" Shortcut="Ctrl+F10" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="111" Shortcut="Ctrl+F11" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="112" Shortcut="Ctrl+F12" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="113" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="114" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="115" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="201" Shortcut="Alt+F1" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="202" Shortcut="Alt+F2" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="203" Shortcut="Alt+F3" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="204" Shortcut="Alt+F4" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="205" Shortcut="Alt+F5" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="206" Shortcut="Alt+F6" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="207" Shortcut="Alt+F7" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="208" Shortcut="Alt+F8" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="209" Shortcut="Alt+F9" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="210" Shortcut="Alt+F10" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="211" Shortcut="Alt+F11" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="212" Shortcut="Alt+F12" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="213" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="214" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="215" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="301" Shortcut="Ctrl+Alt+F1" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="302" Shortcut="Ctrl+Alt+F2" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="303" Shortcut="Ctrl+Alt+F3" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="304" Shortcut="Ctrl+Alt+F4" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="305" Shortcut="Ctrl+Alt+F5" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="306" Shortcut="Ctrl+Alt+F6" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="307" Shortcut="Ctrl+Alt+F7" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="308" Shortcut="Ctrl+Alt+F8" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="309" Shortcut="Ctrl+Alt+F9" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="310" Shortcut="Ctrl+Alt+F10" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="311" Shortcut="Ctrl+Alt+F11" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="312" Shortcut="Ctrl+Alt+F12" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="313" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="314" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="315" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="401" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="402" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="403" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="404" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="405" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="406" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="407" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="408" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="409" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="410" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="411" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="412" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="413" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="414" />
+        <KeyboardShortcut KeyCode="EXEC" ExecutorIndex="415" />
+        <KeyboardShortcut KeyCode="EXEC" SpecialExec="GrandKnob" Shortcut="Ctrl+B" />
+        <KeyboardShortcut KeyCode="DEF_GO" Shortcut="Space" />
+        <KeyboardShortcut KeyCode="DEF_GOBACK" Shortcut="Ctrl+Space" />
+        <KeyboardShortcut KeyCode="DEF_PAUSE" Shortcut="Alt+Space" />
+        <KeyboardShortcut KeyCode="PAUSE" Shortcut="Ctrl+P" />
+        <KeyboardShortcut KeyCode="GOBACK" Shortcut="Ctrl+Alt+G" />
+        <KeyboardShortcut KeyCode="GO" Shortcut="Ctrl+G" />
+        <KeyboardShortcut KeyCode="LEARN" Shortcut="Ctrl+L" />
+        <KeyboardShortcut KeyCode="GOBACKFAST" Shortcut="LeftBracket" />
+        <KeyboardShortcut KeyCode="GOFAST" Shortcut="RightBracket" />
+        <KeyboardShortcut KeyCode="ON" Shortcut="Ctrl+O" />
+        <KeyboardShortcut KeyCode="OFF" Shortcut="O" />
+        <KeyboardShortcut KeyCode="MOVE" Shortcut="Ctrl+M" />
+        <KeyboardShortcut KeyCode="COPY" Shortcut="Ctrl+C" />
+        <KeyboardShortcut KeyCode="DELETE" Shortcut="Ctrl+D" />
+        <KeyboardShortcut KeyCode="ALIGN" Shortcut="Ctrl+A" />
+        <KeyboardShortcut KeyCode="STOMP" Shortcut="Alt+T" />
+        <KeyboardShortcut KeyCode="HELP" Shortcut="Ctrl+Alt+H" />
+        <KeyboardShortcut KeyCode="SELECT" Shortcut="Ctrl+S" />
+        <KeyboardShortcut KeyCode="GOTO" Shortcut="Alt+G" />
+        <KeyboardShortcut KeyCode="FIXTURE" Shortcut="F" />
+        <KeyboardShortcut KeyCode="CHANNEL" Shortcut="C" />
+        <KeyboardShortcut KeyCode="GROUP" Shortcut="G" />
+        <KeyboardShortcut KeyCode="SEQUENCE" Shortcut="Alt+S" />
+        <KeyboardShortcut KeyCode="CUE" Shortcut="Alt+C" />
+        <KeyboardShortcut KeyCode="PRESET" Shortcut="P" />
+        <KeyboardShortcut KeyCode="EDIT" Shortcut="E" />
+        <KeyboardShortcut KeyCode="ASSIGN" Shortcut="Alt+A" />
+        <KeyboardShortcut KeyCode="TIME" Shortcut="Ctrl+T" />
+        <KeyboardShortcut KeyCode="UPDATE" Shortcut="U" />
+        <KeyboardShortcut KeyCode="STORE" Shortcut="S" />
+        <KeyboardShortcut KeyCode="NUM0" Shortcut="0" />
+        <KeyboardShortcut KeyCode="NUM1" Shortcut="1" />
+        <KeyboardShortcut KeyCode="NUM2" Shortcut="2" />
+        <KeyboardShortcut KeyCode="NUM3" Shortcut="3" />
+        <KeyboardShortcut KeyCode="NUM4" Shortcut="4" />
+        <KeyboardShortcut KeyCode="NUM5" Shortcut="5" />
+        <KeyboardShortcut KeyCode="NUM6" Shortcut="6" />
+        <KeyboardShortcut KeyCode="NUM7" Shortcut="7" />
+        <KeyboardShortcut KeyCode="NUM8" Shortcut="8" />
+        <KeyboardShortcut KeyCode="NUM9" Shortcut="9" />
+        <KeyboardShortcut KeyCode="PLUS" Shortcut="Equal" />
+        <KeyboardShortcut KeyCode="THRU" Shortcut="T" />
+        <KeyboardShortcut KeyCode="MINUS" Shortcut="Minus" />
+        <KeyboardShortcut KeyCode="DOT" Shortcut="Period" />
+        <KeyboardShortcut KeyCode="IF" Shortcut="I" />
+        <KeyboardShortcut KeyCode="AT" Shortcut="A" />
+        <KeyboardShortcut KeyCode="SLASH" Shortcut="Slash" />
+        <KeyboardShortcut KeyCode="PLEASE" Shortcut="Enter" />
+        <KeyboardShortcut KeyCode="FULL" Shortcut="Ctrl+F" />
+        <KeyboardShortcut KeyCode="OOPS" Shortcut="Ctrl+Z" />
+        <KeyboardShortcut KeyCode="CLEAR" Shortcut="Delete" />
+        <KeyboardShortcut KeyCode="ESC" Shortcut="Escape" />
+        <KeyboardShortcut KeyCode="MINUS" Shortcut="kpSubtract" />
+        <KeyboardShortcut KeyCode="SLASH" Shortcut="kpDivide" />
+        <KeyboardShortcut KeyCode="PLUS" Shortcut="kpAdd" />
+        <KeyboardShortcut KeyCode="PLEASE" Shortcut="Enter" />
+        <KeyboardShortcut KeyCode="DOT" Shortcut="kpDecimal" />
+        <KeyboardShortcut KeyCode="OOPS" Shortcut="Backspace" />
+        <KeyboardShortcut KeyCode="ONPC_SCREEN2" Shortcut="Ctrl+Alt+2" />
+        <KeyboardShortcut KeyCode="ONPC_SCREEN3" Shortcut="Ctrl+Alt+3" />
+        <KeyboardShortcut KeyCode="ONPC_SCREEN4" Shortcut="Ctrl+Alt+4" />
+        <KeyboardShortcut KeyCode="ONPC_SCREEN5" Shortcut="Ctrl+Alt+5" />
+        <KeyboardShortcut KeyCode="ONPC_SCREEN6" Shortcut="Ctrl+Alt+6" />
+        <KeyboardShortcut KeyCode="ONPC_SCREEN7" Shortcut="Ctrl+Alt+7" />
+    </KeyboardShortCuts>
+</GMA3>
