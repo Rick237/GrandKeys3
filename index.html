@@ -6,6 +6,9 @@
     <title>Keyboard Shortcut Tester</title>
     <meta http-equiv="Cache-Control" content="no-store" />
     <link rel="stylesheet" href="./styles.css" />
+
+    <!-- ✅ Supabase (needed for public leaderboard) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
 
   <body>
@@ -115,6 +118,20 @@
           <div class="label">Load status</div>
           <div class="small mono" id="loadInfo">Loading KeyboardShortCuts.xml…</div>
         </div>
+
+        <!-- ✅ NEW: Public Leaderboard (Top 10) -->
+        <div class="stat">
+          <div class="row" style="justify-content:space-between; align-items:baseline;">
+            <div class="label">Leaderboard (Top 10)</div>
+            <div class="small mono">status: <span id="lbStatus">offline</span></div>
+          </div>
+          <div id="leaderboardList" class="small" style="margin-top:8px;">
+            <!-- Filled by app.js -->
+          </div>
+          <div class="small" style="margin-top:8px; opacity:.8;">
+            Score saved = <span class="mono">Correct</span> of the run
+          </div>
+        </div>
       </div>
     </div>
 
@@ -181,6 +198,19 @@
           <div class="mt12">
             <div class="label">Results JSON</div>
             <textarea id="mJson" class="mono" readonly></textarea>
+          </div>
+
+          <!-- ✅ NEW: Save score in this results popup -->
+          <div class="mt12">
+            <div class="label">Save to leaderboard</div>
+            <div class="small" style="margin-top:6px;">
+              Nickname (max 20 chars):
+            </div>
+            <div class="row mt10" style="gap:8px;">
+              <input id="lbName" maxlength="20" placeholder="Your nickname" style="flex:1;" />
+              <button id="btnSaveScore">Save</button>
+            </div>
+            <div class="small mono" id="lbSaveStatus" style="margin-top:8px;"></div>
           </div>
         </div>
 
