@@ -80,6 +80,19 @@ const mMode = document.getElementById("mMode");
 const mJson = document.getElementById("mJson");
 
 // -------------------- Helpers --------------------
+function isOnlyModifierKey(e) {
+  const k = e.key;
+
+  // modificatori o tasti di stato che non devono essere contati come errori
+  return (
+    k === "Control" ||
+    k === "Alt" ||
+    k === "Shift" ||
+    k === "Meta" ||
+    k === "NumLock"
+  );
+}
+
 function setStatus(msg, cls) {
   elStatus.className = "status " + (cls || "");
   elStatus.textContent = msg || "";
@@ -477,6 +490,13 @@ btnConfirmMode.addEventListener("click", () => {
 window.addEventListener("keydown", (e) => {
   if (!started || !current) return;
 
+  // Se stai premendo SOLO un modificatore (Ctrl/Alt/Shift/Meta),
+  // non contare tentativi/errore e non fare log.
+  if (isOnlyModifierKey(e)) {
+    e.preventDefault(); // evita focus su menu ecc.
+    return;
+  }
+
   e.preventDefault();
 
   const now = performance.now();
@@ -657,3 +677,4 @@ async function loadBundledXml() {
     btnStart.disabled = true;
   }
 })();
+
