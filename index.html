@@ -6,8 +6,6 @@
     <title>Keyboard Shortcut Tester</title>
     <meta http-equiv="Cache-Control" content="no-store" />
     <link rel="stylesheet" href="./styles.css" />
-
-    <!-- ✅ Supabase (needed for public leaderboard) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
 
@@ -28,13 +26,40 @@
           <button id="btnStop" disabled>Stop</button>
           <button id="btnNext" disabled>Next</button>
           <button id="btnToggleShow" disabled>Show Shortcut</button>
-          <!--<button id="btnMode" disabled title="Current mode shown here">Mode: —</button>-->
+          <button id="btnMode" disabled style="display:none;">Mode: —</button>
           <button id="btnReset">Reset</button>
         </div>
       </div>
     </div>
 
     <div class="wrap">
+      <!-- LEADERBOARD MOVED TO LEFT -->
+        <div class="card small-radius" id="leaderboardCard">
+          <div class="row" style="justify-content:space-between;align-items:center;gap:12px;">
+            <div>
+              <div class="label">Leaderboard</div>
+              <div class="small">Top scores with time, mode and avg speed</div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label for="lbModeFilter" class="small mono">Filter mode</label>
+              <select id="lbModeFilter">
+                <option value="all">All</option>
+                <option value="Sequential">Sequential</option>
+                <option value="random">Random</option>
+                <option value="10 keys">10 keys</option>
+                
+              </select>
+            </div>
+          </div>
+
+          <div class="small mono" style="margin-top:8px;">
+            status: <span id="lbStatus">offline</span>
+          </div>
+
+          <div id="leaderboardList" class="small" style="margin-top:12px;"></div>
+        </div>
+      <!-- LEFT COLUMN -->
       <div>
         <div class="card">
           <div class="row">
@@ -78,15 +103,20 @@
             <div class="pill">Avg speed: <span class="mono" id="resultsAvg">—</span></div>
             <div class="pill">Last speed: <span class="mono" id="resultsLast">—</span></div>
           </div>
-
+          <!--
           <div class="mt12">
             <div class="label">Results JSON</div>
             <textarea id="resultsJson" class="mono" readonly></textarea>
           </div>
-        </div>
+        </div>-->
+
+        
       </div>
 
-      <div class="side">
+      <!-- RIGHT SIDEBAR -->
+      
+    </div>
+<div class="side">
         <div class="stat">
           <div class="label">Correct</div>
           <div class="big mono" id="correct">0</div>
@@ -118,66 +148,39 @@
           <div class="label">Load status</div>
           <div class="small mono" id="loadInfo">Loading KeyboardShortCuts.xml…</div>
         </div>
-
-        <!-- ✅ NEW: Public Leaderboard (Top 10) -->
-        <div class="stat">
-          <div class="row" style="justify-content:space-between; align-items:baseline;">
-            <div class="label">Leaderboard (Top 10)</div>
-            <div class="small mono">status: <span id="lbStatus">offline</span></div>
-          </div>
-          <div id="leaderboardList" class="small" style="margin-top:8px;">
-            <!-- Filled by app.js -->
-          </div>
-          <div class="small" style="margin-top:8px; opacity:.8;">
-            Score saved = <span class="mono">Correct</span> of the run
-          </div>
-        </div>
       </div>
+      
+<!-- MODE PICKER MODAL -->
+<div class="modalBackdrop" id="modeModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modalTitle">Choose a mode</div>
+    <div class="modalBody small">
+      Pick how you want to run the test.
     </div>
 
-    <!-- MODE PICKER MODAL -->
-    <div class="modalBackdrop" id="modeModal" aria-hidden="true">
-      <div class="modal">
-        <div class="modalTitle">Choose a mode</div>
-        <div class="modalBody small">
-          Pick how you want to run the test.
-        </div>
+    <div class="modalOptions">
+      <label class="radio">
+        <input type="radio" name="modeChoice" value="sequential" checked />
+        <span><b>Solo iniziale</b> (go through list in order)</span>
+      </label>
 
-        <div class="modalOptions">
-          <label class="radio">
-            <input type="radio" name="modeChoice" value="sequential" checked />
-            <span><b>Sequential</b> (go through list in order)</span>
-          </label>
+      <label class="radio">
+        <input type="radio" name="modeChoice" value="random" />
+        <span><b>Random</b> (random shortcut each time)</span>
+      </label>
 
-          <label class="radio">
-            <input type="radio" name="modeChoice" value="random" />
-            <span><b>Random</b> (random shortcut each time)</span>
-          </label>
-
-          <label class="radio">
-            <input type="radio" name="modeChoice" value="ten" />
-            <span><b>10 keys</b> (exactly 10 questions)</span>
-          </label>
-        </div>
-
-        <div class="modalOptions" id="tenModeExtra" style="display:none;">
-          <div class="small" style="margin-top:6px;">For “10 keys”, choose selection style:</div>
-          <label class="radio">
-            <input type="radio" name="tenChoice" value="random" checked />
-            <span>Random 10</span>
-          </label>
-          <label class="radio">
-            <input type="radio" name="tenChoice" value="sequential" />
-            <span>Sequential 10</span>
-          </label>
-        </div>
-
-        <div class="modalActions">
-          <button class="btnSecondary" id="btnCancelMode">Cancel</button>
-          <button id="btnConfirmMode">Start</button>
-        </div>
-      </div>
+      <label class="radio">
+        <input type="radio" name="modeChoice" value="ten" />
+        <span><b>10 keys</b> (10 random shortcuts, no repeats)</span>
+      </label>
     </div>
+
+    <div class="modalActions">
+      <button class="btnSecondary" id="btnCancelMode">Cancel</button>
+      <button id="btnConfirmMode">Start</button>
+    </div>
+  </div>
+</div>
 
     <!-- RESULTS MODAL -->
     <div class="modalBackdrop" id="resultsModal" aria-hidden="true">
@@ -194,22 +197,22 @@
             <div class="pill">Last speed: <span class="mono" id="mLast">—</span></div>
             <div class="pill">Mode: <span class="mono" id="mMode">—</span></div>
           </div>
-
+          <!-- Json Results
           <div class="mt12">
             <div class="label">Results JSON</div>
             <textarea id="mJson" class="mono" readonly></textarea>
           </div>
+          -->
 
-          <!-- ✅ NEW: Save score in this results popup -->
           <div class="mt12">
             <div class="label">Save to leaderboard</div>
-            <div class="small" style="margin-top:6px;">
-              Nickname (max 20 chars):
-            </div>
+            <div class="small" style="margin-top:6px;">Nickname (max 20 chars):</div>
+
             <div class="row mt10" style="gap:8px;">
               <input id="lbName" maxlength="20" placeholder="Your nickname" style="flex:1;" />
               <button id="btnSaveScore">Save</button>
             </div>
+
             <div class="small mono" id="lbSaveStatus" style="margin-top:8px;"></div>
           </div>
         </div>

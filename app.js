@@ -1,6 +1,11 @@
-// ---------------- STATE ----------------
+// -------------------- State --------------------
 let shortcuts = [];
 let allowedShortcuts = new Set();
+
+let mode = "sequential";      // "sequential" | "random"
+let runType = "full";         // "full" | "ten"
+let tenStyle = "random";      // "random" | "sequential" (only for runType="ten")
+let tenRemaining = 0;
 
 let idx = 0;
 let current = null;
@@ -13,22 +18,28 @@ let correct = 0;
 let errors = 0;
 let totalAttempts = 0;
 
-let lastResultsPayload = null;
-
-let mode = "solo iniziale";
 let showShortcut = false;
 
 let lastKeyTime = null;
 let lastDeltaMs = null;
-let deltas = [];
+let deltas = []; // between keypresses
 
-// ---------------- ELEMENTS ----------------
+let runId = null;
+let lastResultsPayload = null;
+
+let tenPool = [];
+
+// -------------------- Leaderboard (Supabase) --------------------
+const SUPABASE_URL = "https://mjrgmppirvmwevxyabgp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcmdtcHBpcnZtd2V2eHlhYmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NDc4NTEsImV4cCI6MjA4ODMyMzg1MX0.TPXBPXQxAHSvHQFTNYzUK2TBfx3pkorFSUGJd3qEYJU";
+
+let sb = null;
+
+// -------------------- Elements --------------------
 const elTimer = document.getElementById("timer");
 const elKeycode = document.getElementById("keycode");
-
 const elShortcutHidden = document.getElementById("shortcutHidden");
 const elShortcutText = document.getElementById("shortcutText");
-
 const elStatus = document.getElementById("status");
 const elHint = document.getElementById("hint");
 const elLog = document.getElementById("log");
@@ -37,7 +48,6 @@ const elCorrect = document.getElementById("correct");
 const elErrors = document.getElementById("errors");
 const elSpeed = document.getElementById("speed");
 const elAvgSpeed = document.getElementById("avgSpeed");
-
 const elLoaded = document.getElementById("loaded");
 const elAcc = document.getElementById("acc");
 const elProgress = document.getElementById("progress");
@@ -49,20 +59,28 @@ const btnNext = document.getElementById("btnNext");
 const btnToggleShow = document.getElementById("btnToggleShow");
 const btnMode = document.getElementById("btnMode");
 const btnReset = document.getElementById("btnReset");
+const lbModeFilter = document.getElementById("lbModeFilter");
 
-const resultsModal = document.getElementById("resultsModal");
-const btnCloseResults = document.getElementById("btnCloseResults");
+// results section on page
+const elResultsCard = document.getElementById("resultsCard");
+const elResultsTime = document.getElementById("resultsTime");
+const elResultsAttempts = document.getElementById("resultsAttempts");
+const elResultsCorrect = document.getElementById("resultsCorrect");
+const elResultsErrors = document.getElementById("resultsErrors");
+const elResultsAcc = document.getElementById("resultsAcc");
+const elResultsAvg = document.getElementById("resultsAvg");
+const elResultsLast = document.getElementById("resultsLast");
+const elResultsJson = document.getElementById("resultsJson");
 
-const leaderboardList = document.getElementById("leaderboardList");
-const lbStatus = document.getElementById("lbStatus");
-const lbName = document.getElementById("lbName");
-const btnSaveScore = document.getElementById("btnSaveScore");
-const lbSaveStatus = document.getElementById("lbSaveStatus");
-
+// mode modal
 const modeModal = document.getElementById("modeModal");
 const btnCancelMode = document.getElementById("btnCancelMode");
 const btnConfirmMode = document.getElementById("btnConfirmMode");
+const tenModeExtra = document.getElementById("tenModeExtra");
 
+// results modal
+const resultsModal = document.getElementById("resultsModal");
+const btnCloseResults = document.getElementById("btnCloseResults");
 const mTime = document.getElementById("mTime");
 const mAttempts = document.getElementById("mAttempts");
 const mCorrect = document.getElementById("mCorrect");
@@ -73,12 +91,115 @@ const mLast = document.getElementById("mLast");
 const mMode = document.getElementById("mMode");
 const mJson = document.getElementById("mJson");
 
-// ---------------- SUPABASE ----------------
-const SUPABASE_URL = "https://mjrgmppirvmwevxyabgp.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcmdtcHBpcnZtd2V2eHlhYmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NDc4NTEsImV4cCI6MjA4ODMyMzg1MX0.TPXBPXQxAHSvHQFTNYzUK2TBfx3pkorFSUGJd3qEYJU";
+// leaderboard
+const leaderboardList = document.getElementById("leaderboardList");
+const lbStatus = document.getElementById("lbStatus");
+const lbName = document.getElementById("lbName");
+const btnSaveScore = document.getElementById("btnSaveScore");
+const lbSaveStatus = document.getElementById("lbSaveStatus");
 
-let sb = null;
+// -------------------- Helpers --------------------
+function setStatus(msg, cls) {
+  if (!elStatus) return;
+  elStatus.className = "status " + (cls || "");
+  elStatus.textContent = msg || "";
+}
 
+function fmtTime(ms) {
+  const totalSeconds = ms / 1000;
+  const m = Math.floor(totalSeconds / 60);
+  const s = Math.floor(totalSeconds % 60);
+  const tenths = Math.floor((ms % 1000) / 100);
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${tenths}`;
+}
+
+function updateTimer() {
+  if (!started || !elTimer) return;
+  elTimer.textContent = fmtTime(performance.now() - startTime);
+}
+
+function avgDeltaMs() {
+  if (!deltas.length) return null;
+  return Math.round(deltas.reduce((a, b) => a + b, 0) / deltas.length);
+}
+
+function updateStats() {
+  if (elCorrect) elCorrect.textContent = String(correct);
+  if (elErrors) elErrors.textContent = String(errors);
+  if (elLoaded) elLoaded.textContent = String(shortcuts.length);
+
+  const acc = totalAttempts ? Math.round((correct / totalAttempts) * 100) : 0;
+  if (elAcc) elAcc.textContent = `${acc}%`;
+
+  if (elSpeed) {
+    elSpeed.textContent = lastDeltaMs == null ? "—" : `${Math.round(lastDeltaMs)} ms`;
+  }
+
+  if (elAvgSpeed) {
+    const avg = avgDeltaMs();
+    elAvgSpeed.textContent = avg == null ? "avg: —" : `avg: ${avg} ms`;
+  }
+
+  if (!elProgress) return;
+
+  if (!shortcuts.length) {
+    elProgress.textContent = "0 / 0";
+  } else if (runType === "ten") {
+  const done = Math.max(0, 10 - tenRemaining);
+  elProgress.textContent = `${done} / 10`;
+  } else {
+    const shownIndex = mode === "sequential" ? Math.min(idx + 1, shortcuts.length) : "—";
+    elProgress.textContent = `${shownIndex} / ${shortcuts.length}`;
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+
+function logAttempt(ok, expected, pressed) {
+  if (!elLog) return;
+  const div = document.createElement("div");
+  div.className = "logItem";
+  div.innerHTML = `
+    <div><b class="${ok ? "ok" : "bad"}">${ok ? "OK" : "ERR"}</b>
+      <span class="mono">${escapeHtml(expected)}</span>
+    </div>
+    <div class="small mono">pressed: ${escapeHtml(pressed)}${lastDeltaMs != null ? ` • Δ ${Math.round(lastDeltaMs)}ms` : ""}</div>
+  `;
+  elLog.prepend(div);
+}
+
+function randomPick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function newRunId() {
+  return `run_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
+function normalizeShortcut(str) {
+  return String(str || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/control/g, "ctrl")
+    .replace(/command/g, "meta")
+    .replace(/arrowleft/g, "left")
+    .replace(/arrowright/g, "right")
+    .replace(/arrowup/g, "up")
+    .replace(/arrowdown/g, "down");
+}
+
+function modeLabelForPayload() {
+  return runType === "ten"
+    ? "10 keys"
+    : (mode === "sequential" ? "Sequential" : "random");
+}
+
+// -------------------- Supabase --------------------
 function initSupabase() {
   try {
     if (
@@ -95,211 +216,87 @@ function initSupabase() {
   }
 }
 
-// ---------------- HELPERS ----------------
-function fmtTime(ms) {
-  const totalSeconds = ms / 1000;
-  const m = Math.floor(totalSeconds / 60);
-  const s = Math.floor(totalSeconds % 60);
-  const tenths = Math.floor((ms % 1000) / 100);
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${tenths}`;
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[c]));
-}
-
-function setStatus(msg) {
-  if (elStatus) elStatus.textContent = msg || "";
-}
-
-function average(arr) {
-  if (!arr.length) return null;
-  return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
-}
-
-function normalizeShortcut(str) {
-  return String(str || "")
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "")
-    .replace(/control/g, "ctrl")
-    .replace(/command/g, "meta")
-    .replace(/arrowleft/g, "left")
-    .replace(/arrowright/g, "right")
-    .replace(/arrowup/g, "up")
-    .replace(/arrowdown/g, "down");
-}
-
-function normalizeShortcutForCompare(shortcut) {
-  return normalizeShortcut(shortcut);
-}
-
-function keyEventToCombo(e) {
-  const parts = [];
-  if (e.ctrlKey) parts.push("ctrl");
-  if (e.altKey) parts.push("alt");
-  if (e.shiftKey) parts.push("shift");
-  if (e.metaKey) parts.push("meta");
-
-  let key = e.key;
-
-  if (key === "Control") key = "ctrl";
-  else if (key === "Alt") key = "alt";
-  else if (key === "Shift") key = "shift";
-  else if (key === "Meta") key = "meta";
-  else if (key === "ArrowLeft") key = "left";
-  else if (key === "ArrowRight") key = "right";
-  else if (key === "ArrowUp") key = "up";
-  else if (key === "ArrowDown") key = "down";
-  else key = String(key).toLowerCase();
-
-  if (!["ctrl", "alt", "shift", "meta"].includes(key)) {
-    parts.push(key);
-  }
-
-  return parts.join("+");
-}
-
-function updateStats() {
-  if (elCorrect) elCorrect.textContent = correct;
-  if (elErrors) elErrors.textContent = errors;
-
-  const acc = totalAttempts ? Math.round((correct / totalAttempts) * 100) : 0;
-  if (elAcc) elAcc.textContent = `${acc}%`;
-
-  const currentIndex = started ? Math.min(idx, shortcuts.length) : 0;
-  if (elProgress) {
-    elProgress.textContent = shortcuts.length ? `${currentIndex} / ${shortcuts.length}` : "0 / 0";
-  }
-
-  if (elSpeed) {
-    elSpeed.textContent = lastDeltaMs != null ? `${lastDeltaMs} ms` : "—";
-  }
-
-  const avgMs = average(deltas);
-  if (elAvgSpeed) {
-    elAvgSpeed.textContent = `avg: ${avgMs != null ? avgMs + " ms" : "—"}`;
-  }
-}
-
-function updateTimer() {
-  if (!started) return;
-  elTimer.textContent = fmtTime(performance.now() - startTime);
-}
-
-function updateShortcutVisibility() {
-  if (!elShortcutHidden || !elShortcutText || !btnToggleShow) return;
-
-  if (!current) {
-    elShortcutHidden.style.display = "";
-    elShortcutText.style.display = "none";
-    elShortcutHidden.textContent = "Shortcut is hidden";
-    btnToggleShow.textContent = "Show Shortcut";
-    return;
-  }
-
-  if (showShortcut) {
-    elShortcutHidden.style.display = "none";
-    elShortcutText.style.display = "";
-    elShortcutText.textContent = current.shortcut;
-    btnToggleShow.textContent = "Hide Shortcut";
-  } else {
-    elShortcutHidden.style.display = "";
-    elShortcutText.style.display = "none";
-    elShortcutHidden.textContent = "Shortcut is hidden";
-    btnToggleShow.textContent = "Show Shortcut";
-  }
-}
-
-function openModeModal() {
-  if (!modeModal) return;
-  modeModal.classList.add("show");
-  modeModal.style.display = "flex";
-  modeModal.setAttribute("aria-hidden", "false");
-}
-
-function closeModeModal() {
-  if (!modeModal) return;
-  modeModal.classList.remove("show");
-  modeModal.style.display = "";
-  modeModal.setAttribute("aria-hidden", "true");
-}
-
-function getSelectedModeFromModal() {
-  const checked = document.querySelector('input[name="modeChoice"]:checked');
-  if (!checked) return "solo iniziale";
-
-  const map = {
-    sequential: "solo iniziale",
-    random: "random",
-    ten: "10 keys"
-  };
-
-  return map[checked.value] || "solo iniziale";
-}
-
-// ---------------- LEADERBOARD ----------------
 async function loadLeaderboard() {
+  if (!leaderboardList || !lbStatus) return;
+
   if (!sb) {
-    if (lbStatus) lbStatus.textContent = "offline";
+    lbStatus.textContent = "offline";
     return;
   }
 
-  if (lbStatus) lbStatus.textContent = "loading";
+  lbStatus.textContent = "loading";
 
-  const { data, error } = await sb
+  const selectedMode = lbModeFilter ? lbModeFilter.value : "all";
+
+  let query = sb
     .from("scores")
-    .select("name, score, time_text, mode, avg_speed_ms")
-    .order("score", { ascending: false })
-    .order("avg_speed_ms", { ascending: true, nullsFirst: false })
-    .limit(10);
+    .select("name, score, accuracy, time_text, time_ms, mode, avg_speed_ms");
+
+  if (selectedMode !== "all") {
+    query = query.eq("mode", selectedMode);
+  }
+
+const { data, error } = await query
+  .order("score", { ascending: false })
+  .limit(10);
 
   if (error) {
     console.error(error);
-    if (lbStatus) lbStatus.textContent = "error";
+    lbStatus.textContent = "error";
     return;
   }
 
-  if (lbStatus) lbStatus.textContent = "online";
+  lbStatus.textContent = "online";
 
-  if (leaderboardList) {
-    leaderboardList.innerHTML = (data || [])
-      .map((r, i) => `
-        <div class="logItem" style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;gap:12px;">
-            <span><b>${i + 1}.</b> ${escapeHtml(r.name || "Player")}</span>
-            <span class="mono"><b>${r.score ?? 0}</b></span>
-          </div>
-          <div class="small mono" style="margin-top:4px;">
-            time: ${escapeHtml(r.time_text || "—")} ·
-            mode: ${escapeHtml(r.mode || "—")} ·
-            avg: ${r.avg_speed_ms != null ? `${r.avg_speed_ms} ms` : "—"}
-          </div>
-        </div>
-      `)
-      .join("");
+  if (!data || !data.length) {
+    leaderboardList.innerHTML = `<div class="small mono">No entries for this mode.</div>`;
+    return;
   }
+
+leaderboardList.innerHTML = (data || []).map((row, i) => {
+
+  let medal = `${i + 1}.`;
+
+  if (i === 0) medal = "🥇";
+  else if (i === 1) medal = "🥈";
+  else if (i === 2) medal = "🥉";
+
+  return `
+    <div class="logItem" style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;">
+        <span><b>${medal}</b> ${escapeHtml(row.name || "Player")}</span>
+        <span class="mono"><b>${Math.round(row.score ?? 0)}</b></span>
+      </div>
+
+      <div class="small mono" style="margin-top:4px;">
+        acc: ${row.accuracy ?? 0}% ·
+        time: ${escapeHtml(row.time_text || "—")} ·
+        mode: ${escapeHtml(row.mode || "—")} ·
+        avg: ${row.avg_speed_ms != null ? `${row.avg_speed_ms} ms` : "—"}
+      </div>
+    </div>
+  `;
+}).join("");
 }
 
 async function saveScoreToLeaderboard(nickname, payload) {
   if (!sb || !payload) return;
 
   const name = (nickname || "").trim().slice(0, 20) || "Player";
+  const accuracy = Number(payload.accuracyPct) || 0;
+  const timeMs = Number(payload.elapsedMs) || 0;
 
-  const row = {
-    name,
-    score: Number(payload.correct) || 0,
-    time_text: payload.elapsedHuman || null,
-    mode: payload.mode || null,
-    avg_speed_ms: payload.avgMs != null ? Number(payload.avgMs) : null
-  };
+  const computedScore = accuracy * 10000 - timeMs;
 
+const row = {
+  name,
+  score: computedScore,
+  accuracy: accuracy,
+  time_text: payload.elapsedHuman || null,
+  time_ms: payload.elapsedMs || null,
+  mode: payload.mode || null,
+  avg_speed_ms: payload.avgDeltaMs != null ? Number(payload.avgDeltaMs) : null
+};
   const { error } = await sb.from("scores").insert([row]);
 
   if (error) {
@@ -313,290 +310,497 @@ async function saveScoreToLeaderboard(nickname, payload) {
   } catch {}
 
   if (lbSaveStatus) lbSaveStatus.textContent = "Saved!";
-  loadLeaderboard();
+  
+  await loadLeaderboard();
+  closeModal(resultsModal)
 }
 
-// ---------------- XML LOADER ----------------
-async function loadBundledXml() {
-  const res = await fetch("./KeyboardShortCuts.xml", { cache: "no-store" });
-  if (!res.ok) throw new Error(`XML fetch failed: ${res.status}`);
+// -------------------- XML parsing --------------------
+function parseShortcutsXml(xmlText) {
+  const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+  const parseError = doc.querySelector("parsererror");
+  if (parseError) throw new Error("XML parse error.");
 
-  const xmlText = await res.text();
-  const parser = new DOMParser();
-  const xml = parser.parseFromString(xmlText, "text/xml");
+  let nodes = Array.from(doc.querySelectorAll("KeyboardShortcut"));
+  if (!nodes.length) nodes = Array.from(doc.querySelectorAll("*[Shortcut]"));
 
-  if (xml.querySelector("parsererror")) {
-    throw new Error("XML parse error");
-  }
-
-  const nodes = xml.querySelectorAll("KeyboardShortcut");
-
-  shortcuts = Array.from(nodes)
-    .map((node) => ({
-      keyCode: (node.getAttribute("KeyCode") || "").trim(),
-      shortcut: (node.getAttribute("Shortcut") || "").trim()
+  const out = nodes
+    .map((n) => ({
+      KeyCode: n.getAttribute("KeyCode") || "",
+      Shortcut: n.getAttribute("Shortcut") || "",
+      ExecutorIndex: n.getAttribute("ExecutorIndex") || "",
+      SpecialExec: n.getAttribute("SpecialExec") || ""
     }))
-    .filter((item) => item.shortcut);
+    .filter((x) => x.Shortcut && x.Shortcut.trim().length);
 
-  allowedShortcuts = new Set(
-    shortcuts.map((item) => normalizeShortcut(item.shortcut))
-  );
+  const seen = new Set();
+  const deduped = out.filter((x) => {
+    const k = x.Shortcut.trim();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
 
-  if (elLoaded) elLoaded.textContent = shortcuts.length;
-  if (elLoadInfo) elLoadInfo.textContent = `Loaded ${shortcuts.length} shortcuts`;
+  allowedShortcuts = new Set(deduped.map((x) => normalizeShortcut(x.Shortcut)));
 
-  if (shortcuts.length > 0) {
-    btnStart.disabled = false;
-    setStatus("Ready");
-  } else {
-    btnStart.disabled = true;
-    setStatus("No shortcuts found in XML");
-  }
-
-  updateStats();
+  return deduped;
 }
 
-// ---------------- GAME ----------------
-function renderCurrentShortcut() {
+// -------------------- Matching --------------------
+function normalizeExpected(shortcutText) {
+  const raw = shortcutText.trim();
+  const parts = raw.split("+").map((p) => p.trim());
+  const keyPart = parts[parts.length - 1];
+
+  return {
+    raw,
+    ctrl: parts.includes("Ctrl"),
+    alt: parts.includes("Alt"),
+    shift: parts.includes("Shift"),
+    meta: parts.includes("Meta") || parts.includes("Cmd") || parts.includes("Command"),
+    key: normalizeKeyName(keyPart),
+    code: normalizeCodeName(keyPart)
+  };
+}
+
+function normalizeKeyName(name) {
+  if (/^[A-Z]$/.test(name)) return name.toLowerCase();
+  if (/^F\d{1,2}$/.test(name)) return name;
+  if (/^\d$/.test(name)) return name;
+
+  const map = {
+    Left: "ArrowLeft",
+    Right: "ArrowRight",
+    Up: "ArrowUp",
+    Down: "ArrowDown",
+    PageUp: "PageUp",
+    PageDown: "PageDown",
+    Space: " ",
+    Enter: "Enter",
+    Escape: "Escape",
+    Backspace: "Backspace",
+    Delete: "Delete",
+    Comma: ",",
+    Period: ".",
+    Slash: "/",
+    Minus: "-",
+    Equal: "=",
+    LeftBracket: "[",
+    RightBracket: "]",
+    kpAdd: "+",
+    kpSubtract: "-",
+    kpDivide: "/",
+    kpDecimal: "."
+  };
+
+  return map[name] ?? name;
+}
+
+function normalizeCodeName(name) {
+  const codeMap = {
+    kpAdd: "NumpadAdd",
+    kpSubtract: "NumpadSubtract",
+    kpDivide: "NumpadDivide",
+    kpDecimal: "NumpadDecimal"
+  };
+  return codeMap[name] ?? null;
+}
+
+function matchesExpected(e, expected) {
+  if (!!e.ctrlKey !== !!expected.ctrl) return false;
+  if (!!e.altKey !== !!expected.alt) return false;
+  if (!!e.shiftKey !== !!expected.shift) return false;
+  if (!!e.metaKey !== !!expected.meta) return false;
+
+  if (expected.code) return e.code === expected.code;
+
+  const actualKey = /^[A-Z]$/.test(e.key) ? e.key.toLowerCase() : e.key;
+  return actualKey === expected.key;
+}
+
+function describePressed(e) {
+  const mods = [];
+  if (e.ctrlKey) mods.push("Ctrl");
+  if (e.altKey) mods.push("Alt");
+  if (e.shiftKey) mods.push("Shift");
+  if (e.metaKey) mods.push("Meta");
+  const k = e.key === " " ? "Space" : e.key;
+  return mods.length ? `${mods.join("+")}+${k}` : k;
+}
+
+// -------------------- UI / flow --------------------
+function renderShortcutVisibility() {
+  if (!elShortcutHidden || !elShortcutText || !btnToggleShow) return;
+
   if (!current) {
-    if (elShortcutText) elShortcutText.textContent = "—";
-    if (elHint) elHint.textContent = "";
-    if (elKeycode) elKeycode.textContent = "—";
-    updateShortcutVisibility();
+    elShortcutHidden.style.display = "";
+    elShortcutText.style.display = "none";
+    elShortcutText.textContent = "—";
+    btnToggleShow.textContent = "Show Shortcut";
     return;
   }
 
-  if (elShortcutText) elShortcutText.textContent = current.shortcut;
-  if (elHint) elHint.textContent = current.keyCode ? `KeyCode: ${current.keyCode}` : "";
-  if (elKeycode) elKeycode.textContent = current.keyCode || "—";
-
-  updateShortcutVisibility();
-}
-
-function getNextShortcutByMode() {
-  if (!shortcuts.length) return null;
-
-  if (mode === "random") {
-    const randomIndex = Math.floor(Math.random() * shortcuts.length);
-    return shortcuts[randomIndex];
+  if (showShortcut) {
+    elShortcutHidden.style.display = "none";
+    elShortcutText.style.display = "";
+    elShortcutText.textContent = current.Shortcut;
+  } else {
+    elShortcutHidden.style.display = "";
+    elShortcutText.style.display = "none";
+    elShortcutText.textContent = current.Shortcut;
   }
 
-  if (mode === "10 keys") {
-    if (idx >= Math.min(10, shortcuts.length)) return null;
-    return shortcuts[idx++];
-  }
-
-  if (idx >= shortcuts.length) idx = 0;
-  return shortcuts[idx++];
+  btnToggleShow.textContent = showShortcut ? "Hide Shortcut" : "Show Shortcut";
 }
 
-function nextShortcut() {
-  if (!shortcuts.length) return;
+function setCurrent(item) {
+  current = { ...item, expected: normalizeExpected(item.Shortcut) };
 
-  const next = getNextShortcutByMode();
-
-  if (!next) {
-    stopGame();
-    return;
-  }
-
-  current = next;
-  renderCurrentShortcut();
-  updateStats();
-}
-
-function reallyStartGame() {
-  if (!shortcuts.length) return;
-
-  started = true;
-  startTime = performance.now();
-  clearInterval(timerId);
-  timerId = setInterval(updateTimer, 100);
-
-  correct = 0;
-  errors = 0;
-  totalAttempts = 0;
-  idx = 0;
-  current = null;
+  if (elKeycode) elKeycode.textContent = current.KeyCode || "—";
   showShortcut = false;
+  renderShortcutVisibility();
 
-  lastResultsPayload = null;
-  lastKeyTime = null;
-  lastDeltaMs = null;
-  deltas = [];
+  const extra = [];
+  if (current.ExecutorIndex) extra.push(`ExecutorIndex: ${current.ExecutorIndex}`);
+  if (current.SpecialExec) extra.push(`SpecialExec: ${current.SpecialExec}`);
+  if (elHint) elHint.textContent = extra.join(" • ");
 
-  if (elTimer) elTimer.textContent = "00:00.0";
-  if (elSpeed) elSpeed.textContent = "—";
-  if (elAvgSpeed) elAvgSpeed.textContent = "avg: —";
-
-  btnStart.disabled = true;
-  btnStop.disabled = false;
-  if (btnNext) btnNext.disabled = false;
-  if (btnToggleShow) btnToggleShow.disabled = false;
-
-  if (resultsModal) {
-    resultsModal.classList.remove("show");
-    resultsModal.style.display = "";
-  }
-
-  nextShortcut();
+  setStatus("Waiting for key press…", "");
   updateStats();
-  setStatus(`Game started · ${mode}`);
 }
 
-function fillResultsModal(payload) {
-  const attempts = payload.attempts || 0;
-  const acc = attempts ? Math.round((payload.correct / attempts) * 100) : 0;
+function pickNext() {
+  if (!shortcuts.length) return;
 
-  if (mTime) mTime.textContent = payload.elapsedHuman || "—";
-  if (mAttempts) mAttempts.textContent = String(payload.attempts || 0);
-  if (mCorrect) mCorrect.textContent = String(payload.correct || 0);
-  if (mErrors) mErrors.textContent = String(payload.errors || 0);
-  if (mAcc) mAcc.textContent = `${acc}%`;
-  if (mAvg) mAvg.textContent = payload.avgMs != null ? `${payload.avgMs} ms` : "—";
-  if (mLast) mLast.textContent = payload.lastMs != null ? `${payload.lastMs} ms` : "—";
-  if (mMode) mMode.textContent = payload.mode || "—";
+  // 10 keys = random without repetition
+  if (runType === "ten") {
+    if (!tenPool.length) {
+      setStatus("✅ Finished 10 keys.", "ok");
+      stopGame("finished_ten");
+      return;
+    }
 
-  if (mJson) {
-    mJson.value = JSON.stringify(payload, null, 2);
+    const randomIndex = Math.floor(Math.random() * tenPool.length);
+    const item = tenPool.splice(randomIndex, 1)[0];
+    setCurrent(item);
+    return;
+  }
+
+  // full run
+  if (mode === "random") {
+    setCurrent(randomPick(shortcuts));
+  } else {
+    setCurrent(shortcuts[Math.min(idx, shortcuts.length - 1)]);
   }
 }
 
-function stopGame() {
+function advanceIfNeededAfterCorrect() {
+  if (runType === "ten") {
+    tenRemaining -= 1;
+
+    if (tenRemaining <= 0) {
+      setStatus("✅ Finished 10 keys.", "ok");
+      stopGame("finished_ten");
+    }
+    return;
+  }
+
+  if (mode === "sequential") {
+    idx += 1;
+    if (idx >= shortcuts.length) {
+      setStatus("✅ Finished all shortcuts (sequential).", "ok");
+      stopGame("finished_all");
+    }
+  }
+}
+
+function hideResultsCard() {
+  if (!elResultsCard || !elResultsJson) return;
+  elResultsCard.style.display = "none";
+  elResultsJson.value = "";
+}
+
+function buildResultsPayload(elapsedMs, reason) {
+  const accuracy = totalAttempts ? correct / totalAttempts : 0;
+
+  return {
+    runId,
+    endedAt: new Date().toISOString(),
+    reason,
+    runType,
+    mode: modeLabelForPayload(),
+    elapsedMs: Math.round(elapsedMs),
+    elapsedHuman: fmtTime(elapsedMs),
+    loadedShortcuts: shortcuts.length,
+    attempts: totalAttempts,
+    correct,
+    errors,
+    accuracyPct: Math.round(accuracy * 100),
+    lastDeltaMs: lastDeltaMs == null ? null : Math.round(lastDeltaMs),
+    avgDeltaMs: avgDeltaMs()
+  };
+}
+
+function showResultsEverywhere(payload) {
+  lastResultsPayload = payload;
+
+  if (elResultsCard) elResultsCard.style.display = "";
+  if (elResultsTime) elResultsTime.textContent = `time: ${payload.elapsedHuman}`;
+  if (elResultsAttempts) elResultsAttempts.textContent = String(payload.attempts);
+  if (elResultsCorrect) elResultsCorrect.textContent = String(payload.correct);
+  if (elResultsErrors) elResultsErrors.textContent = String(payload.errors);
+  if (elResultsAcc) elResultsAcc.textContent = `${payload.accuracyPct}%`;
+  if (elResultsAvg) elResultsAvg.textContent = payload.avgDeltaMs == null ? "—" : `${payload.avgDeltaMs} ms`;
+  if (elResultsLast) elResultsLast.textContent = payload.lastDeltaMs == null ? "—" : `${payload.lastDeltaMs} ms`;
+  if (elResultsJson) elResultsJson.value = JSON.stringify(payload, null, 2);
+
+  if (mTime) mTime.textContent = payload.elapsedHuman;
+  if (mAttempts) mAttempts.textContent = String(payload.attempts);
+  if (mCorrect) mCorrect.textContent = String(payload.correct);
+  if (mErrors) mErrors.textContent = String(payload.errors);
+  if (mAcc) mAcc.textContent = `${payload.accuracyPct}%`;
+  if (mAvg) mAvg.textContent = payload.avgDeltaMs == null ? "—" : `${payload.avgDeltaMs} ms`;
+  if (mLast) mLast.textContent = payload.lastDeltaMs == null ? "—" : `${payload.lastDeltaMs} ms`;
+  if (mMode) mMode.textContent = payload.mode;
+  if (mJson) mJson.value = JSON.stringify(payload, null, 2);
+
+  if (lbName) {
+    try { lbName.value = localStorage.getItem("lb_nick") || ""; } catch {}
+  }
+  if (lbSaveStatus) lbSaveStatus.textContent = "";
+
+  openModal(resultsModal);
+}
+
+function stopGame(reason) {
   if (!started) return;
 
   started = false;
-  clearInterval(timerId);
-
-  btnStart.disabled = shortcuts.length === 0;
-  btnStop.disabled = true;
-  if (btnNext) btnNext.disabled = true;
-  if (btnToggleShow) btnToggleShow.disabled = true;
+  if (timerId) clearInterval(timerId);
+  timerId = null;
 
   const elapsed = performance.now() - startTime;
+  if (elTimer) elTimer.textContent = fmtTime(elapsed);
 
-  lastResultsPayload = {
-    mode,
-    correct,
-    errors,
-    attempts: totalAttempts,
-    elapsedHuman: fmtTime(elapsed),
-    avgMs: average(deltas),
-    lastMs: lastDeltaMs
-  };
+  if (btnStart) btnStart.disabled = false;
+  if (btnStop) btnStop.disabled = true;
+  if (btnNext) btnNext.disabled = true;
+  if (btnToggleShow) btnToggleShow.disabled = true;
+  if (btnMode) btnMode.disabled = true;
 
-  fillResultsModal(lastResultsPayload);
+  current = null;
+  if (elKeycode) elKeycode.textContent = "—";
+  renderShortcutVisibility();
 
-  if (lbName) {
-    try {
-      lbName.value = localStorage.getItem("lb_nick") || "";
-    } catch {}
-  }
+  setStatus("Stopped. Results shown.", "");
+  const payload = buildResultsPayload(elapsed, reason || "stopped");
+  showResultsEverywhere(payload);
 
-  if (lbSaveStatus) lbSaveStatus.textContent = "";
-
-  if (resultsModal) {
-    resultsModal.classList.add("show");
-    resultsModal.style.display = "flex";
-    resultsModal.setAttribute("aria-hidden", "false");
-  }
-
-  setStatus("Game ended");
+  updateStats();
 }
 
-// ---------------- BROWSER SHORTCUT BLOCK ----------------
-document.addEventListener(
-  "keydown",
-  (e) => {
-    if (!started) return;
+// -------------------- Modals --------------------
+function openModal(el) {
+  if (!el) return;
+  el.classList.add("show");
+  el.setAttribute("aria-hidden", "false");
+}
 
-    const combo = normalizeShortcut(keyEventToCombo(e));
-    const key = String(e.key || "").toLowerCase();
+function closeModal(el) {
+  if (!el) return;
+  el.classList.remove("show");
+  el.setAttribute("aria-hidden", "true");
+}
 
-    const isGameShortcut = allowedShortcuts.has(combo);
-    const looksLikeBrowserShortcut =
-      e.ctrlKey ||
-      e.metaKey ||
-      e.altKey ||
-      ["f1", "f3", "f5", "f12"].includes(key);
+if (lbModeFilter) {
+  lbModeFilter.addEventListener("change", () => {
+    loadLeaderboard();
+  });
+}
 
-    if (looksLikeBrowserShortcut && !isGameShortcut) {
-      e.preventDefault();
-      e.stopPropagation();
+if (modeModal) {
+  modeModal.addEventListener("click", (e) => {
+    if (e.target === modeModal) closeModal(modeModal);
+  });
+}
+if (resultsModal) {
+  resultsModal.addEventListener("click", (e) => {
+    if (e.target === resultsModal) closeModal(resultsModal);
+  });
+}
+
+if (btnCancelMode) btnCancelMode.addEventListener("click", () => closeModal(modeModal));
+if (btnCloseResults) btnCloseResults.addEventListener("click", () => closeModal(resultsModal));
+
+function syncTenExtraVisibility() {
+  const v = document.querySelector('input[name="modeChoice"]:checked')?.value;
+  if (tenModeExtra) tenModeExtra.style.display = v === "ten" ? "" : "none";
+}
+
+document.querySelectorAll('input[name="modeChoice"]').forEach((r) => {
+  r.addEventListener("change", syncTenExtraVisibility);
+});
+
+if (btnConfirmMode) {
+  btnConfirmMode.addEventListener("click", () => {
+    const chosen = document.querySelector('input[name="modeChoice"]:checked')?.value || "sequential";
+
+    if (chosen === "ten") {
+      runType = "ten";
+      tenRemaining = 10;
+    } else {
+      runType = "full";
+      mode = chosen;
     }
-  },
-  true
-);
 
-// ---------------- GAME KEY INPUT ----------------
-document.addEventListener("keydown", (e) => {
+    closeModal(modeModal);
+    actuallyStartRun();
+  });
+}
+
+// -------------------- Browser shortcut block --------------------
+window.addEventListener("keydown", (e) => {
+  if (!started) return;
+
+  const combo = normalizeShortcut(describePressed(e));
+  const key = String(e.key || "").toLowerCase();
+
+  const looksLikeBrowserShortcut =
+    e.ctrlKey ||
+    e.metaKey ||
+    e.altKey ||
+    ["f1", "f3", "f5", "f12"].includes(key);
+
+  const isGameShortcut = allowedShortcuts.has(combo);
+
+  if (looksLikeBrowserShortcut && !isGameShortcut) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}, true);
+
+// -------------------- Events --------------------
+window.addEventListener("keydown", (e) => {
   if (!started || !current) return;
 
-  const combo = normalizeShortcut(keyEventToCombo(e));
-  const expected = normalizeShortcutForCompare(current.shortcut);
+  e.preventDefault();
 
   const now = performance.now();
   if (lastKeyTime != null) {
-    lastDeltaMs = Math.round(now - lastKeyTime);
+    lastDeltaMs = now - lastKeyTime;
     deltas.push(lastDeltaMs);
+    if (deltas.length > 200) deltas.shift();
   }
   lastKeyTime = now;
 
-  totalAttempts++;
+  totalAttempts += 1;
 
-  if (combo === expected) {
-    correct++;
-    nextShortcut();
-    setStatus("Correct");
+  const ok = matchesExpected(e, current.expected);
+  const pressed = describePressed(e);
+
+  if (ok) {
+    correct += 1;
+    setStatus("✅ Correct!", "ok");
+    logAttempt(true, current.Shortcut, pressed);
+
+    advanceIfNeededAfterCorrect();
+    if (started) pickNext();
   } else {
-    errors++;
-    setStatus(`Wrong: ${combo || e.key}`);
+    errors += 1;
+    setStatus(`❌ Error. pressed: ${pressed}`, "bad");
+    logAttempt(false, current.Shortcut, pressed);
   }
 
   updateStats();
 });
 
-// ---------------- BUTTON EVENTS ----------------
 if (btnStart) {
   btnStart.addEventListener("click", () => {
-    openModeModal();
+    if (!shortcuts.length) {
+      setStatus("No shortcuts loaded (XML not ready).", "bad");
+      return;
+    }
+    syncTenExtraVisibility();
+    openModal(modeModal);
   });
 }
 
-if (btnStop) btnStop.addEventListener("click", stopGame);
+if (btnStop) btnStop.addEventListener("click", () => stopGame("user_stop"));
 
 if (btnNext) {
   btnNext.addEventListener("click", () => {
     if (!started) return;
-    nextShortcut();
+
+    if (runType === "ten") {
+      tenRemaining = Math.max(0, tenRemaining - 1);
+      if (tenRemaining <= 0) {
+        stopGame("finished_ten");
+      } else {
+        pickNext();
+      }
+      updateStats();
+      return;
+    }
+
+    if (mode === "sequential") idx = Math.min(idx + 1, shortcuts.length - 1);
+    pickNext();
   });
 }
 
 if (btnToggleShow) {
   btnToggleShow.addEventListener("click", () => {
-    if (!current) return;
+    if (!started || !current) return;
     showShortcut = !showShortcut;
-    updateShortcutVisibility();
-  });
-}
-
-if (btnCancelMode) {
-  btnCancelMode.addEventListener("click", () => {
-    closeModeModal();
-  });
-}
-
-if (btnConfirmMode) {
-  btnConfirmMode.addEventListener("click", () => {
-    mode = getSelectedModeFromModal();
-    closeModeModal();
-    reallyStartGame();
+    renderShortcutVisibility();
   });
 }
 
 if (btnReset) {
   btnReset.addEventListener("click", () => {
-    location.reload();
+    started = false;
+    if (timerId) clearInterval(timerId);
+    timerId = null;
+
+    startTime = 0;
+    if (elTimer) elTimer.textContent = "00:00.0";
+
+    idx = 0;
+    current = null;
+    showShortcut = false;
+
+    correct = 0;
+    errors = 0;
+    totalAttempts = 0;
+
+    lastKeyTime = null;
+    lastDeltaMs = null;
+    deltas = [];
+
+    runType = "full";
+    mode = "sequential";
+    tenStyle = "random";
+    tenRemaining = 0;
+
+    runId = null;
+    lastResultsPayload = null;
+
+    if (elLog) elLog.innerHTML = "";
+    if (elKeycode) elKeycode.textContent = "—";
+    hideResultsCard();
+
+    if (btnStart) btnStart.disabled = shortcuts.length === 0;
+    if (btnStop) btnStop.disabled = true;
+    if (btnNext) btnNext.disabled = true;
+    if (btnToggleShow) btnToggleShow.disabled = true;
+    if (btnMode) {
+      btnMode.disabled = true;
+      btnMode.textContent = "Mode: —";
+      btnMode.style.display = "none";
+    }
+
+    renderShortcutVisibility();
+    setStatus("Reset. Press Start when ready.", "");
+    updateStats();
   });
 }
 
@@ -607,16 +811,70 @@ if (btnSaveScore) {
   });
 }
 
-if (btnCloseResults) {
-  btnCloseResults.addEventListener("click", () => {
-    if (!resultsModal) return;
-    resultsModal.classList.remove("show");
-    resultsModal.style.display = "";
-    resultsModal.setAttribute("aria-hidden", "true");
-  });
+function actuallyStartRun() {
+  hideResultsCard();
+  closeModal(resultsModal);
+
+  runId = newRunId();
+
+  correct = 0;
+  errors = 0;
+  totalAttempts = 0;
+  lastKeyTime = null;
+  lastDeltaMs = null;
+  deltas = [];
+  if (elLog) elLog.innerHTML = "";
+
+  started = true;
+  startTime = performance.now();
+  timerId = setInterval(updateTimer, 100);
+
+  idx = 0;
+  tenPool = [];
+
+  if (runType === "ten") {
+    const shuffled = [...shortcuts].sort(() => Math.random() - 0.5);
+    tenPool = shuffled.slice(0, Math.min(10, shuffled.length));
+    tenRemaining = tenPool.length;
+  }
+
+  if (btnStart) btnStart.disabled = true;
+  if (btnStop) btnStop.disabled = false;
+  if (btnNext) btnNext.disabled = false;
+  if (btnToggleShow) btnToggleShow.disabled = false;
+  if (btnMode) {
+    btnMode.disabled = true;
+    btnMode.style.display = "none";
+  }
+
+  setStatus("Started. Waiting for key press…", "");
+  pickNext();
+  updateStats();
 }
 
-// ---------------- INIT ----------------
+// -------------------- Load XML --------------------
+async function loadBundledXml() {
+  if (elLoadInfo) elLoadInfo.textContent = "Loading KeyboardShortCuts.xml…";
+  const res = await fetch("./KeyboardShortCuts.xml", { cache: "no-store" });
+
+  if (!res.ok) throw new Error(`Failed to load KeyboardShortCuts.xml (HTTP ${res.status})`);
+
+  const text = await res.text();
+  shortcuts = parseShortcutsXml(text);
+
+  if (elLoadInfo) elLoadInfo.textContent = `Loaded: ${shortcuts.length} shortcuts`;
+  updateStats();
+
+  if (shortcuts.length) {
+    if (btnStart) btnStart.disabled = false;
+    setStatus("Ready. Press Start.", "ok");
+  } else {
+    if (btnStart) btnStart.disabled = true;
+    setStatus("XML loaded but 0 shortcuts found.", "bad");
+  }
+}
+
+// -------------------- Init --------------------
 (async function init() {
   if (btnStart) btnStart.disabled = true;
   if (btnStop) btnStop.disabled = true;
@@ -624,16 +882,20 @@ if (btnCloseResults) {
   if (btnToggleShow) btnToggleShow.disabled = true;
   if (btnMode) btnMode.style.display = "none";
 
-  updateShortcutVisibility();
   updateStats();
-  setStatus("Loading XML…");
+  setStatus("Loading XML…", "");
 
   try {
     await loadBundledXml();
   } catch (err) {
     console.error(err);
-    if (elLoadInfo) elLoadInfo.textContent = "Failed to load XML.";
-    setStatus("Could not load KeyboardShortCuts.xml");
+    if (elLoadInfo) {
+      elLoadInfo.textContent = "Failed to load XML. Check server/folder/filename.";
+    }
+    setStatus(
+      "Could not load KeyboardShortCuts.xml. Make sure you are using http://localhost:8000 and the XML is next to index.html.",
+      "bad"
+    );
     if (btnStart) btnStart.disabled = true;
   }
 
