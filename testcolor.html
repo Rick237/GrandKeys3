@@ -1,0 +1,234 @@
+
+
+
+Give me the color palette of grandma 3
+
+The grandMA3 interface does not use a single fixed “brand palette” like a design system. Instead, its default UI theme uses a set of functional colors to indicate states (selected fixtures, tracked values, programmer data, etc.). These colors are part of the console’s color theme system, which can be edited or replaced. 
+
+Below is a representative palette of the default grandMA3 UI (approximate hex values commonly extracted from the default theme).
+
+Core UI Background Colors
+Purpose	Color	Hex
+Main background	Dark gray	#2B2B2B
+Panel background	Medium gray	#3A3A3A
+Secondary background	Darker gray	#1F1F1F
+Text (default)	White	#FFFFFF
+Disabled text	Light gray	#BFBFBF
+State / Status Colors
+These colors indicate fixture or programming states in sheets and editors.
+
+Meaning	Color	Hex (approx.)
+Selected fixtures	Yellow	#FFD400
+Sub-selection / partial	Orange	#FF8C00
+Inverted encoder control	Green	#00D060
+Edge fixtures	Light green	#7CFF7C
+Active programmer values	Red background	#D90000
+New value in cue	Cyan	#00C8FF
+Descending dimmer value	Green	#00FF7F
+Tracked value	Magenta	#FF00FF
+These colors are used throughout sheets to indicate programming state and cue behavior. 
+
+Layer / Attribute Colors
+Additional layers (relative values, delays, fade times) use their own palette:
+
+Layer	Color	Hex
+Relative layer	Mauve	#C080FF
+Fade time	Green	#00B050
+Delay time	Orange	#FF7F27
+Move-in-black	Sea green	#2E8B57
+✅ Important:
+
+grandMA3 themes are fully customizable in the Color Theme editor.
+
+The console ships mainly with default and defaultDAYLIGHT themes, but designers often export and edit the XML to create custom palettes. 
+
+💡 If you want, I can also show you:
+
+the actual hex palette extracted from the default theme XML, or
+
+a ready-to-use palette for design tools (Figma / CSS / UI design) based on grandMA3.
+
+
+give me a simple html page with this color
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>grandMA3 Inspired Palette</title>
+  <style>
+    :root {
+      --bg-main: #2B2B2B;
+      --bg-panel: #3A3A3A;
+      --bg-secondary: #1F1F1F;
+      --text: #FFFFFF;
+      --text-muted: #BFBFBF;
+
+      --yellow: #FFD400;
+      --orange: #FF8C00;
+      --green: #00D060;
+      --light-green: #7CFF7C;
+      --red: #D90000;
+      --cyan: #00C8FF;
+      --magenta: #FF00FF;
+      --purple: #C080FF;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg-main);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-top: 0;
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid #555;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #111;
+    }
+
+    .btn-yellow { background: var(--yellow); }
+    .btn-orange { background: var(--orange); }
+    .btn-green { background: var(--green); }
+    .btn-cyan { background: var(--cyan); }
+    .btn-magenta { background: var(--magenta); color: white; }
+    .btn-red { background: var(--red); color: white; }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .swatch {
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-secondary);
+      border: 1px solid #444;
+    }
+
+    .swatch-color {
+      height: 90px;
+    }
+
+    .swatch-label {
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .footer {
+      margin-top: 32px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--purple);
+      border-radius: 8px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>grandMA3 Inspired UI</h1>
+    <p>Simple HTML page using an approximate grandMA3-style color palette.</p>
+
+    <div class="panel">
+      <h2>Controls</h2>
+      <div class="button-row">
+        <button class="btn btn-yellow">Selected</button>
+        <button class="btn btn-orange">Partial</button>
+        <button class="btn btn-green">Active</button>
+        <button class="btn btn-cyan">New Value</button>
+        <button class="btn btn-magenta">Tracked</button>
+        <button class="btn btn-red">Programmer</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Palette Swatches</h2>
+      <div class="swatches">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#2B2B2B;"></div>
+          <div class="swatch-label">Main Background<br>#2B2B2B</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#3A3A3A;"></div>
+          <div class="swatch-label">Panel Background<br>#3A3A3A</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FFD400;"></div>
+          <div class="swatch-label">Selected<br>#FFD400</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FF8C00;"></div>
+          <div class="swatch-label">Partial<br>#FF8C00</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#00D060;"></div>
+          <div class="swatch-label">Active<br>#00D060</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#00C8FF;"></div>
+          <div class="swatch-label">New Value<br>#00C8FF</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FF00FF;"></div>
+          <div class="swatch-label">Tracked<br>#FF00FF</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#D90000;"></div>
+          <div class="swatch-label">Programmer<br>#D90000</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Note: these are approximate grandMA3-inspired colors, not an official extracted theme file.
+    </div>
+  </div>
+</body>
+</html>
+I can also turn this into a more polished grandMA3-style dashboard layout.
+
+
+
+

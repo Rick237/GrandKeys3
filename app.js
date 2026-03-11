@@ -592,8 +592,9 @@ function stopGame(reason) {
   if (elKeycode) elKeycode.textContent = "—";
   renderShortcutVisibility();
 
-  setStatus("Stopped. Results shown.", "");
+  setStatus("Stopped", "");
   const payload = buildResultsPayload(elapsed, reason || "stopped");
+  if (reason == "user_stop") return;
   showResultsEverywhere(payload);
 
   updateStats();
@@ -608,8 +609,20 @@ function openModal(el) {
 
 function closeModal(el) {
   if (!el) return;
+
+  const active = document.activeElement;
+  if (active && el.contains(active)) {
+    active.blur();
+  }
+
   el.classList.remove("show");
   el.setAttribute("aria-hidden", "true");
+
+  if (btnStart && !btnStart.disabled) {
+    btnStart.focus();
+  } else if (btnReset) {
+    btnReset.focus();
+  }
 }
 
 if (lbModeFilter) {

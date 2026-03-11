@@ -6,7 +6,11 @@
     <title>Keyboard Shortcut Tester</title>
     <meta http-equiv="Cache-Control" content="no-store" />
     <link rel="stylesheet" href="./styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+      import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+      window.supabase = { createClient };
+    </script>
   </head>
 
   <body>
@@ -22,8 +26,8 @@
         </div>
 
         <div class="controls">
-          <button id="btnStart" disabled>Start</button>
-          <button id="btnStop" disabled>Stop</button>
+          <button class="button " id="btnStart" disabled>Start</button>
+          <button class="button " id="btnStop" disabled>Stop</button>
           <button id="btnNext" disabled>Next</button>
           <button id="btnToggleShow" disabled>Show Shortcut</button>
           <button id="btnMode" disabled style="display:none;">Mode: —</button>
@@ -149,7 +153,7 @@
           <div class="small mono" id="loadInfo">Loading KeyboardShortCuts.xml…</div>
         </div>
       </div>
-      
+
 <!-- MODE PICKER MODAL -->
 <div class="modalBackdrop" id="modeModal" aria-hidden="true">
   <div class="modal">
