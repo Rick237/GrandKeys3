@@ -324,28 +324,49 @@ function parseShortcutsXml(xmlText) {
   let nodes = Array.from(doc.querySelectorAll("KeyboardShortcut"));
   if (!nodes.length) nodes = Array.from(doc.querySelectorAll("*[Shortcut]"));
 
-  const out = nodes
+  const raw = nodes
     .map((n) => ({
-      KeyCode: n.getAttribute("KeyCode") || "",
-      Shortcut: n.getAttribute("Shortcut") || "",
-      ExecutorIndex: n.getAttribute("ExecutorIndex") || "",
-      SpecialExec: n.getAttribute("SpecialExec") || ""
+      KeyCode: (n.getAttribute("KeyCode") || "").trim(),
+      Shortcut: (n.getAttribute("Shortcut") || "").trim(),
+      ExecutorIndex: (n.getAttribute("ExecutorIndex") || "").trim(),
+      SpecialExec: (n.getAttribute("SpecialExec") || "").trim()
     }))
-    .filter((x) => x.Shortcut && x.Shortcut.trim().length);
+    .filter((x) => x.KeyCode && x.Shortcut);
 
-  const seen = new Set();
-  const deduped = out.filter((x) => {
-    const k = x.Shortcut.trim();
-    if (seen.has(k)) return false;
-    seen.add(k);
-    return true;
-  });
+  // Keep all allowed shortcuts for browser-shortcut blocking
+  allowedShortcuts = new Set(raw.map((x) => normalizeShortcut(x.Shortcut)));
 
-  allowedShortcuts = new Set(deduped.map((x) => normalizeShortcut(x.Shortcut)));
+  // Group by KeyCode so one KeyCode can accept multiple shortcuts
+  const grouped = new Map();
 
-  return deduped;
+  for (const item of raw) {
+    if (!grouped.has(item.KeyCode)) {
+      grouped.set(item.KeyCode, {
+        KeyCode: item.KeyCode,
+        Shortcuts: [],
+        ExecutorIndex: item.ExecutorIndex,
+        SpecialExec: item.SpecialExec
+      });
+    }
+
+    const entry = grouped.get(item.KeyCode);
+
+    // avoid duplicate identical shortcuts inside same KeyCode
+    if (!entry.Shortcuts.includes(item.Shortcut)) {
+      entry.Shortcuts.push(item.Shortcut);
+    }
+
+    // keep first non-empty metadata, or update if missing
+    if (!entry.ExecutorIndex && item.ExecutorIndex) {
+      entry.ExecutorIndex = item.ExecutorIndex;
+    }
+    if (!entry.SpecialExec && item.SpecialExec) {
+      entry.SpecialExec = item.SpecialExec;
+    }
+  }
+
+  return Array.from(grouped.values());
 }
-
 // -------------------- Matching --------------------
 function normalizeExpected(shortcutText) {
   const raw = shortcutText.trim();
@@ -418,6 +439,10 @@ function matchesExpected(e, expected) {
   return actualKey === expected.key;
 }
 
+function matchesAnyExpected(e, expectedList) {
+  return expectedList.some((expected) => matchesExpected(e, expected));
+}
+
 function describePressed(e) {
   const mods = [];
   if (e.ctrlKey) mods.push("Ctrl");
@@ -440,21 +465,29 @@ function renderShortcutVisibility() {
     return;
   }
 
+  const shortcutText = (current.Shortcuts || []).join("  OR  ");
+
   if (showShortcut) {
     elShortcutHidden.style.display = "none";
     elShortcutText.style.display = "";
-    elShortcutText.textContent = current.Shortcut;
+    elShortcutText.textContent = shortcutText;
   } else {
     elShortcutHidden.style.display = "";
     elShortcutText.style.display = "none";
-    elShortcutText.textContent = current.Shortcut;
+    elShortcutText.textContent = shortcutText;
   }
 
   btnToggleShow.textContent = showShortcut ? "Hide Shortcut" : "Show Shortcut";
 }
 
 function setCurrent(item) {
-  current = { ...item, expected: normalizeExpected(item.Shortcut) };
+  current = {
+    ...item,
+    expectedList: (item.Shortcuts || []).map((s) => ({
+      raw: s,
+      ...normalizeExpected(s)
+    }))
+  };
 
   if (elKeycode) elKeycode.textContent = current.KeyCode || "....";
   showShortcut = false;
@@ -631,14 +664,16 @@ if (lbModeFilter) {
   });
 }
 
+// Disable outside-click closing
 if (modeModal) {
   modeModal.addEventListener("click", (e) => {
-    if (e.target === modeModal) closeModal(modeModal);
+    e.stopPropagation();
   });
 }
+
 if (resultsModal) {
   resultsModal.addEventListener("click", (e) => {
-    if (e.target === resultsModal) closeModal(resultsModal);
+    e.stopPropagation();
   });
 }
 
@@ -695,7 +730,12 @@ window.addEventListener("keydown", (e) => {
 // -------------------- Events --------------------
 window.addEventListener("keydown", (e) => {
   if (!started || !current) return;
-  if (e.key === "NumLock") return;
+
+  // Ignore lock keys so they don't count as errors
+  if (["NumLock", "CapsLock", "ScrollLock"].includes(e.key)) {
+    return;
+  }
+
   e.preventDefault();
 
   const now = performance.now();
@@ -708,20 +748,21 @@ window.addEventListener("keydown", (e) => {
 
   totalAttempts += 1;
 
-  const ok = matchesExpected(e, current.expected);
+  const ok = matchesAnyExpected(e, current.expectedList || []);
   const pressed = describePressed(e);
+  const expectedText = (current.Shortcuts || []).join(" OR ");
 
   if (ok) {
     correct += 1;
     setStatus("✅ Correct!", "ok");
-    logAttempt(true, current.Shortcut, pressed);
+    logAttempt(true, expectedText, pressed);
 
     advanceIfNeededAfterCorrect();
     if (started) pickNext();
   } else {
     errors += 1;
     setStatus(`❌ Error. pressed: ${pressed}`, "bad");
-    logAttempt(false, current.Shortcut, pressed);
+    logAttempt(false, expectedText, pressed);
   }
 
   updateStats();

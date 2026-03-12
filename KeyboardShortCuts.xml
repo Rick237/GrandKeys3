@@ -84,9 +84,10 @@
 		<KeyboardShortcut KeyCode="ESC" Shortcut="Escape" />
 		<KeyboardShortcut KeyCode="+" Shortcut="kpAdd" />
 		<KeyboardShortcut KeyCode="OOPS" Shortcut="Backspace" />
+	    <KeyboardShortcutD KeyCode="+" Shortcut="Equal" />
 	</KeyboardShortCuts>
 	<KeyboardShortCutsDeactivated>
-		<KeyboardShortcutD KeyCode="PLUS" Shortcut="Equal" />
+
 		<KeyboardShortcutD KeyCode="TIME" Shortcut="Ctrl+T" />
 		<KeyboardShortcutD KeyCode="GOBACKFAST" Shortcut="LeftBracket" />
 		<KeyboardShortcutD KeyCode="GOFAST" Shortcut="RightBracket" />
