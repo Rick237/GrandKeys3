@@ -37,12 +37,12 @@
         <div class="card small-radius" id="leaderboardCard">
           <div class="row" style="justify-content:space-between;align-items:center;gap:12px;">
             <div>
-              <div class="label">Leaderboard</div>
+              <div class="label leaderboard">Leaderboard</div>
               <div class="small">Top scores with time, mode and avg speed</div>
             </div>
 
             <div style="display:flex;align-items:center;gap:8px;">
-              <label for="lbModeFilter" class="small mono">Filter mode</label>
+              <label for="lbModeFilter" class="small mono">Filter mode:</label>
               <select id="lbModeFilter">
                 <option value="all">All</option>
                 <option value="Sequential">Sequential</option>
@@ -64,7 +64,7 @@
         <div class="card">
           <div class="status" id="status"></div>
           <div class="keycodeWrap">
-            <div class="label">KeyCode</div>
+            <div class="label keycode">KeyCode</div>
             <div class="keycode mono" id="keycode">....</div>
           </div>
 
@@ -167,12 +167,12 @@
     <div class="modalOptions">
       <label class="radio">
         <input type="radio" name="modeChoice" value="sequential" checked />
-        <span><b>Solo iniziale</b> (go through list in order)</span>
+        <span><b>Full</b> (go through the whole list in order)</span>
       </label>
 
       <label class="radio">
         <input type="radio" name="modeChoice" value="random" />
-        <span><b>Random</b> (random shortcut each time)</span>
+        <span><b>Random</b> (go thru the whole random shortcut each time)</span>
       </label>
 
       <label class="radio">

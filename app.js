@@ -264,7 +264,7 @@ leaderboardList.innerHTML = (data || []).map((row, i) => {
   return `
     <div class="logItem" style="margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;gap:12px;">
-        <span><b>${medal}</b> ${escapeHtml(row.name || "Player")}</span>
+        <span class="small leaderboardName"><b>${medal}</b> ${escapeHtml(row.name || "Player")}</span>
         <span class="mono"><b>${Math.round(row.score ?? 0)}</b></span>
       </div>
 
@@ -456,7 +456,7 @@ function renderShortcutVisibility() {
 function setCurrent(item) {
   current = { ...item, expected: normalizeExpected(item.Shortcut) };
 
-  if (elKeycode) elKeycode.textContent = current.KeyCode || "—";
+  if (elKeycode) elKeycode.textContent = current.KeyCode || "....";
   showShortcut = false;
   renderShortcutVisibility();
 
@@ -589,7 +589,7 @@ function stopGame(reason) {
   if (btnMode) btnMode.disabled = true;
 
   current = null;
-  if (elKeycode) elKeycode.textContent = "—";
+  if (elKeycode) elKeycode.textContent = "....";
   renderShortcutVisibility();
 
   setStatus("Stopped", "");
@@ -798,7 +798,7 @@ if (btnReset) {
     lastResultsPayload = null;
 
     if (elLog) elLog.innerHTML = "";
-    if (elKeycode) elKeycode.textContent = "—";
+    if (elKeycode) elKeycode.textContent = "....";
     hideResultsCard();
 
     if (btnStart) btnStart.disabled = shortcuts.length === 0;
@@ -812,7 +812,7 @@ if (btnReset) {
     }
 
     renderShortcutVisibility();
-    setStatus("Reset. Press Start when ready.", "");
+    setStatus("Reset. Press Start when ready.", "ok");
     updateStats();
   });
 }
