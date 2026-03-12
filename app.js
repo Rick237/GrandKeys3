@@ -465,7 +465,7 @@ function setCurrent(item) {
   if (current.SpecialExec) extra.push(`SpecialExec: ${current.SpecialExec}`);
   if (elHint) elHint.textContent = extra.join(" • ");
 
-  setStatus("Waiting for key press…", "");
+  setStatus("Waiting for key press…", "warning");
   updateStats();
 }
 
@@ -695,7 +695,7 @@ window.addEventListener("keydown", (e) => {
 // -------------------- Events --------------------
 window.addEventListener("keydown", (e) => {
   if (!started || !current) return;
-
+  if (e.key === "NumLock") return;
   e.preventDefault();
 
   const now = performance.now();
@@ -860,7 +860,7 @@ function actuallyStartRun() {
     btnMode.style.display = "none";
   }
 
-  setStatus("Started. Waiting for key press…", "");
+  setStatus("Started. Waiting for key press…", "warning");
   pickNext();
   updateStats();
 }

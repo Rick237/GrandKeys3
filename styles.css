@@ -194,6 +194,10 @@ button:disabled {
   color: #77f2a3;
 }
 
+.warning {
+  color:#f1c40f;
+}
+
 .bad {
   color: #ff8f8f;
 }
