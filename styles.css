@@ -5,6 +5,18 @@ body {
   color: #e9eefc;
 }
 
+.bottombar {
+   position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #2B2B2B;
+  padding: 10px 0;
+  z-index: 1000;
+  
+  /*border-bottom: 1px solid #232323;*/
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -15,9 +27,32 @@ body {
 }
 
 .topinner {
-  max-width: 1100px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 14px 18px;
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 14px;
+  padding-bottom: 0px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.topinner.secondrow {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 0px;
+  padding-bottom: 14px;
+}
+
+.bottominner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   display: flex;
   gap: 16px;
   align-items: center;
@@ -57,6 +92,11 @@ h1 {
   font-size: 22px;
   font-weight: 950;
   letter-spacing: 0.3px;
+
+}
+.keycode.color
+{
+  color: #3498db;
 }
 
 .controls {

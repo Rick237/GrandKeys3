@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Keyboard Shortcut Tester</title>
     <meta http-equiv="Cache-Control" content="no-store" />
+    <link rel="icon" href="/favicon.ico">
     <link rel="stylesheet" href="./styles.css" />
     <script type="module">
       import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -17,9 +18,10 @@
     <div class="topbar">
       <div class="topinner">
         <div class="topleft">
-          <h1>Keyboard Shortcut Tester</h1>
+          <h1>GrandMa3 on PC Keyboard Shortcut</h1>
           <div class="timer mono" id="timer">00:00.0</div>
         </div>
+        
 
         <div class="controls">
           <button class="button " id="btnStart" disabled>Start</button>
@@ -30,6 +32,7 @@
           <button id="btnReset">Reset</button>
         </div>
       </div>
+      <div class="topinner secondrow small">Learn and get faster using the keyboard shortcut with this tool for GrandMA3 on PC</div>
     </div>
 
     <div class="wrap">
@@ -65,7 +68,7 @@
           <div class="status" id="status"></div>
           <div class="keycodeWrap">
             <div class="label keycode">KeyCode</div>
-            <div class="keycode mono" id="keycode">....</div>
+            <div class="keycode color mono" id="keycode">....</div>
           </div>
 
           <div class="row">
@@ -228,6 +231,28 @@
         </div>
       </div>
     </div>
+    <div class="bottombar">
+     <div class="bottominner small">Not Affiliated with MA Lighting International GmbH</div> 
+     <div class="bottominner small">Teasted on Windows - Chrome</div>
+    </div>
+
+    <div class="modalBackdrop" id="welcomeModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modalTitle">Welcome to the GrandMA3 Keyboard Shortcut Tester</div>
+
+    <div class="modalBody small">
+      Learn or beat the record.
+      <br><br>
+      Press <b>Start</b> to begin testing keyboard shortcuts on the top right corner.<br>
+      This tool use the default shortcut in the MA3onPC file. <br>
+      Some of the Shortcut are disabled because of the limitation of running on webpage.
+    </div>
+
+    <div class="modalActions">
+      <button id="btnCloseWelcome">Close</button>
+    </div>
+  </div>
+</div>
 
     <script src="./app.js"></script>
   </body>

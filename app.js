@@ -936,6 +936,18 @@ async function loadBundledXml() {
   if (btnToggleShow) btnToggleShow.disabled = true;
   if (btnMode) btnMode.style.display = "none";
 
+  // Open welcome popup on page load
+const welcomeModal = document.getElementById("welcomeModal");
+const btnCloseWelcome = document.getElementById("btnCloseWelcome");
+
+if (welcomeModal) {
+  openModal(welcomeModal);
+}
+
+if (btnCloseWelcome) {
+  btnCloseWelcome.addEventListener("click", () => closeModal(welcomeModal));
+}
+
   updateStats();
   setStatus("Loading XML…", "");
 
