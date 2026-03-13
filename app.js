@@ -142,6 +142,8 @@ function playEndSound() {
 
 
 // -------------------- Helpers --------------------
+const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+
 function setStatus(msg, cls) {
   if (!elStatus) return;
   elStatus.className = "status " + (cls || "");
@@ -680,11 +682,19 @@ function normalizeCodeName(name) {
 }
 
 function matchesExpected(e, expected) {
-  if (!!e.ctrlKey !== !!expected.ctrl) return false;
-  if (!!e.altKey !== !!expected.alt) return false;
-  if (!!e.shiftKey !== !!expected.shift) return false;
-  if (!!e.metaKey !== !!expected.meta) return false;
+  // On Mac:
+  // - XML Ctrl should match Command
+  // - XML Alt should match Option
+  const actualCtrl = IS_MAC ? !!e.metaKey : !!e.ctrlKey;
+  const actualAlt = !!e.altKey;
+  const actualShift = !!e.shiftKey;
 
+  if (actualCtrl !== !!expected.ctrl) return false;
+  if (actualAlt !== !!expected.alt) return false;
+  if (actualShift !== !!expected.shift) return false;
+
+  // Ignore raw ctrlKey/metaKey strict comparison because on Mac
+  // Command is being treated as Ctrl logically.
   if (expected.code) return e.code === expected.code;
 
   const actualKey = /^[A-Z]$/.test(e.key) ? e.key.toLowerCase() : e.key;
@@ -697,10 +707,17 @@ function matchesAnyExpected(e, expectedList) {
 
 function describePressed(e) {
   const mods = [];
-  if (e.ctrlKey) mods.push("Ctrl");
-  if (e.altKey) mods.push("Alt");
+
+  if (IS_MAC) {
+    if (e.metaKey) mods.push("Ctrl");
+    if (e.altKey) mods.push("Alt");
+  } else {
+    if (e.ctrlKey) mods.push("Ctrl");
+    if (e.altKey) mods.push("Alt");
+  }
+
   if (e.shiftKey) mods.push("Shift");
-  if (e.metaKey) mods.push("Meta");
+
   const k = e.key === " " ? "Space" : e.key;
   return mods.length ? `${mods.join("+")}+${k}` : k;
 }
