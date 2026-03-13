@@ -144,45 +144,6 @@ function playEndSound() {
 // -------------------- Helpers --------------------
 const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 
-function normalizeAnyCodeName(name) {
-  const specialMap = {
-    kpAdd: "NumpadAdd",
-    kpSubtract: "NumpadSubtract",
-    kpDivide: "NumpadDivide",
-    kpDecimal: "NumpadDecimal",
-
-    Left: "ArrowLeft",
-    Right: "ArrowRight",
-    Up: "ArrowUp",
-    Down: "ArrowDown",
-
-    Enter: "Enter",
-    Escape: "Escape",
-    Backspace: "Backspace",
-    Delete: "Delete",
-    Space: "Space",
-    Tab: "Tab",
-
-    Comma: "Comma",
-    Period: "Period",
-    Slash: "Slash",
-    Minus: "Minus",
-    Equal: "Equal",
-    LeftBracket: "BracketLeft",
-    RightBracket: "BracketRight"
-  };
-
-  if (specialMap[name]) return specialMap[name];
-
-  if (/^[A-Z]$/.test(name)) return `Key${name}`;
-  if (/^[a-z]$/.test(name)) return `Key${name.toUpperCase()}`;
-  if (/^\d$/.test(name)) return `Digit${name}`;
-  if (/^F\d{1,2}$/.test(name)) return name;
-
-  return null;
-}
-
-
 function setStatus(msg, cls) {
   if (!elStatus) return;
   elStatus.className = "status " + (cls || "");
@@ -701,7 +662,7 @@ function normalizeExpected(shortcutText) {
     shift: parts.includes("Shift"),
     meta: parts.includes("Meta") || parts.includes("Cmd") || parts.includes("Command"),
     key: normalizeKeyName(keyPart),
-    code: normalizeAnyCodeName(keyPart)
+    code: normalizeCodeName(keyPart)
   };
 }
 
@@ -749,33 +710,24 @@ function normalizeCodeName(name) {
 }
 
 function matchesExpected(e, expected) {
-  // XML Ctrl should mean:
-  // - Ctrl on Windows/Linux
-  // - Command on Mac
-  const actualCtrlLike = IS_MAC ? !!e.metaKey : !!e.ctrlKey;
-
-  // XML Alt should mean:
-  // - Alt on Windows/Linux
-  // - Option on Mac
-  const actualAltLike = !!e.altKey;
-
+  const actualCtrl = IS_MAC ? !!e.metaKey : !!e.ctrlKey;
+  const actualAlt = !!e.altKey;
   const actualShift = !!e.shiftKey;
 
-  if (actualCtrlLike !== !!expected.ctrl) return false;
-  if (actualAltLike !== !!expected.alt) return false;
+  if (actualCtrl !== !!expected.ctrl) return false;
+  if (actualAlt !== !!expected.alt) return false;
   if (actualShift !== !!expected.shift) return false;
 
-  // Prevent raw Ctrl/Meta mismatch from breaking Mac mapping
-  if (!IS_MAC && !!e.metaKey !== !!expected.meta) {
-    return false;
+  // If XML explicitly mapped a code like kpAdd
+  if (expected.code) return e.code === expected.code;
+
+  // On Mac, Option modifies e.key into symbols.
+  // So for Alt shortcuts, compare physical key position instead.
+  if (IS_MAC && expected.alt) {
+    const expectedCode = keyNameToCode(expected.key);
+    if (expectedCode) return e.code === expectedCode;
   }
 
-  // Best cross-platform match: use physical code whenever possible
-  if (expected.code) {
-    return e.code === expected.code;
-  }
-
-  // Fallback to e.key only if we truly have no code mapping
   const actualKey = /^[A-Z]$/.test(e.key) ? e.key.toLowerCase() : e.key;
   return actualKey === expected.key;
 }
@@ -793,14 +745,11 @@ function describePressed(e) {
   } else {
     if (e.ctrlKey) mods.push("Ctrl");
     if (e.altKey) mods.push("Alt");
-    if (e.metaKey) mods.push("Meta");
   }
 
   if (e.shiftKey) mods.push("Shift");
 
-  let k = e.code || e.key;
-  if (k === "Space") k = "Space";
-
+  const k = e.key === " " ? "Space" : e.key;
   return mods.length ? `${mods.join("+")}+${k}` : k;
 }
 
@@ -1062,17 +1011,6 @@ if (btnConfirmMode) {
 }
 
 // -------------------- Browser shortcut block --------------------
-window.addEventListener("keydown", (e) => {
-  console.log({
-    key: e.key,
-    code: e.code,
-    ctrlKey: e.ctrlKey,
-    metaKey: e.metaKey,
-    altKey: e.altKey,
-    shiftKey: e.shiftKey
-  });
-});
-
 window.addEventListener("keydown", (e) => {
   if (!started) return;
 
