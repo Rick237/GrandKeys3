@@ -98,6 +98,46 @@ const lbName = document.getElementById("lbName");
 const btnSaveScore = document.getElementById("btnSaveScore");
 const lbSaveStatus = document.getElementById("lbSaveStatus");
 
+
+// -------------------- Sound --------------------
+let audioCtx = null;
+
+function playBeep(freq, duration = 0.08, type = "sine") {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.frequency.value = freq;
+  osc.type = type;
+
+  gain.gain.value = 0.15;
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playCorrectSound() {
+  playBeep(900, 0.03);
+  setTimeout(() => playBeep(1100, 0.03), 30);
+}
+
+function playErrorSound() {
+  playBeep(220, 0.12, "square"); // lower longer beep
+}
+
+function playEndSound() {
+  playBeep(600, 0.08);
+  setTimeout(() => playBeep(800, 0.08), 90);
+  setTimeout(() => playBeep(1000, 0.12), 180);
+}
+
+
 // -------------------- Helpers --------------------
 function setStatus(msg, cls) {
   if (!elStatus) return;
@@ -609,6 +649,10 @@ function stopGame(reason) {
   if (!started) return;
 
   started = false;
+
+  if (reason === "finished_all" || reason === "finished_ten") {
+  playEndSound();
+}
   if (timerId) clearInterval(timerId);
   timerId = null;
 
@@ -625,7 +669,7 @@ function stopGame(reason) {
   if (elKeycode) elKeycode.textContent = "....";
   renderShortcutVisibility();
 
-  setStatus("Stopped", "");
+  setStatus("Stopped", "bad");
   const payload = buildResultsPayload(elapsed, reason || "stopped");
   if (reason == "user_stop") return;
   showResultsEverywhere(payload);
@@ -754,6 +798,7 @@ window.addEventListener("keydown", (e) => {
 
   if (ok) {
     correct += 1;
+    playCorrectSound();
     setStatus("✅ Correct!", "ok");
     logAttempt(true, expectedText, pressed);
 
@@ -761,6 +806,7 @@ window.addEventListener("keydown", (e) => {
     if (started) pickNext();
   } else {
     errors += 1;
+    playErrorSound();
     setStatus(`❌ Error. pressed: ${pressed}`, "bad");
     logAttempt(false, expectedText, pressed);
   }
