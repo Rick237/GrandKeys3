@@ -34,6 +34,9 @@ const SUPABASE_URL = "https://mjrgmppirvmwevxyabgp.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1qcmdtcHBpcnZtd2V2eHlhYmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NDc4NTEsImV4cCI6MjA4ODMyMzg1MX0.TPXBPXQxAHSvHQFTNYzUK2TBfx3pkorFSUGJd3qEYJU";
 
 let sb = null;
+let supabaseReady = false;
+let supabaseChecking = false;
+let saveQueueTimer = null;
 
 // -------------------- Elements --------------------
 const elTimer = document.getElementById("timer");
@@ -236,7 +239,7 @@ function normalizeShortcut(str) {
 function modeLabelForPayload() {
   return runType === "ten"
     ? "10 keys"
-    : (mode === "sequential" ? "Sequential" : "random");
+    : (mode === "sequential" ? "Sequential" : "Random");
 }
 
 // -------------------- Supabase --------------------
@@ -259,8 +262,13 @@ function initSupabase() {
 async function loadLeaderboard() {
   if (!leaderboardList || !lbStatus) return;
 
-  if (!sb) {
+  if (!sb || !supabaseReady) {
     lbStatus.textContent = "offline";
+    leaderboardList.innerHTML = `
+      <div class="small mono">
+        Leaderboard offline${queueSize() ? ` • queued scores: ${queueSize()}` : ""}
+      </div>
+    `;
     return;
   }
 
@@ -282,9 +290,15 @@ const { data, error } = await query
 
   if (error) {
     console.error(error);
-    lbStatus.textContent = "error";
+    supabaseReady = false;
+    lbStatus.textContent = "offline";
+    leaderboardList.innerHTML = `
+      <div class="small mono">
+        Leaderboard offline${queueSize() ? ` • queued scores: ${queueSize()}` : ""}
+      </div>
+    `;
     return;
-  }
+ }
 
   lbStatus.textContent = "online";
 
@@ -320,7 +334,7 @@ leaderboardList.innerHTML = (data || []).map((row, i) => {
 }
 
 async function saveScoreToLeaderboard(nickname, payload) {
-  if (!sb || !payload) return;
+  if (!payload) return;
 
   const name = (nickname || "").trim().slice(0, 20) || "Player";
   const accuracy = Number(payload.accuracyPct) || 0;
@@ -337,23 +351,221 @@ const row = {
   mode: payload.mode || null,
   avg_speed_ms: payload.avgDeltaMs != null ? Number(payload.avgDeltaMs) : null
 };
-  const { error } = await sb.from("scores").insert([row]);
 
-  if (error) {
-    console.error(error);
-    if (lbSaveStatus) lbSaveStatus.textContent = "Save failed";
-    return;
-  }
-
-  try {
+try {
     localStorage.setItem("lb_nick", name);
   } catch {}
 
+
+
+ // If offline, queue immediately
+
+  if (!sb || !supabaseReady) {
+    queueScoreLocally(row);
+    if (lbSaveStatus) lbSaveStatus.textContent = `Saved locally (${queueSize()} queued)`;
+    await loadLeaderboard();
+    closeModal(resultsModal);
+    return;
+  }
+
+
+  const { error } = await sb.from("scores").insert([row]);
+
+if (error) {
+
+    console.error(error);
+    // fallback to local queue
+    supabaseReady = false;
+    queueScoreLocally(row);
+
+    if (lbSaveStatus) {
+
+      lbSaveStatus.textContent = `Offline. Saved locally (${queueSize()} queued)`;
+
+    }
+
+    await loadLeaderboard();
+    closeModal(resultsModal);
+    return;
+
+  }
+
   if (lbSaveStatus) lbSaveStatus.textContent = "Saved!";
-  
+  await flushQueuedScores();
   await loadLeaderboard();
-  closeModal(resultsModal)
+  closeModal(resultsModal);
+
 }
+async function checkSupabaseConnection() {
+  if (!sb) return false;
+
+  try {
+    const { error } = await sb
+      .from("scores")
+      .select("score", { head: true, count: "exact" });
+
+    return !error;
+  } catch (err) {
+    console.warn("Supabase unreachable:", err);
+    return false;
+  }
+}
+
+async function ensureSupabaseConnection() {
+  if (!sb) {
+    supabaseReady = false;
+    if (lbStatus) lbStatus.textContent = "offline";
+    return false;
+  }
+
+  const ok = await checkSupabaseConnection();
+  supabaseReady = ok;
+
+  if (lbStatus) {
+    lbStatus.textContent = ok ? "online" : "offline";
+  }
+
+  return ok;
+}
+
+function startSupabaseMonitor() {
+  if (supabaseChecking) return;
+  supabaseChecking = true;
+
+  const tick = async () => {
+    const wasReady = supabaseReady;
+    const ok = await ensureSupabaseConnection();
+
+    if (ok && !wasReady) {
+      await flushQueuedScores();
+      await loadLeaderboard();
+    }
+
+    if (!ok && lbStatus) {
+      lbStatus.textContent = "reconnecting...";
+    }
+  };
+
+  tick();
+
+  saveQueueTimer = setInterval(tick, 3000);
+}
+
+function stopSupabaseMonitor() {
+  supabaseChecking = false;
+  if (saveQueueTimer) {
+    clearInterval(saveQueueTimer);
+    saveQueueTimer = null;
+  }
+}
+
+async function waitForSupabaseConnection() {
+  if (supabaseChecking) return;
+  supabaseChecking = true;
+
+  while (!supabaseReady) {
+    const ok = await checkSupabaseConnection();
+
+    if (ok) {
+      supabaseReady = true;
+      supabaseChecking = false;
+
+      if (lbStatus) lbStatus.textContent = "online";
+      await loadLeaderboard();
+
+      if (shortcuts.length && btnStart) {
+        btnStart.disabled = false;
+      }
+
+      setStatus("Ready. Press Start.", "ok");
+      return;
+    }
+
+    supabaseReady = false;
+    if (lbStatus) lbStatus.textContent = "reconnecting...";
+    if (btnStart) btnStart.disabled = true;
+    setStatus("Waiting for leaderboard connection…", "bad");
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
+  supabaseChecking = false;
+}
+
+const SCORE_QUEUE_KEY = "kb_score_queue";
+
+function getQueuedScores() {
+  try {
+    const raw = localStorage.getItem(SCORE_QUEUE_KEY);
+    const arr = JSON.parse(raw || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
+function setQueuedScores(queue) {
+  try {
+    localStorage.setItem(SCORE_QUEUE_KEY, JSON.stringify(queue || []));
+  } catch (e) {
+    console.warn("Failed to save queue locally", e);
+  }
+}
+
+function queueScoreLocally(row) {
+  const queue = getQueuedScores();
+  queue.push({
+    ...row,
+    queuedAt: new Date().toISOString()
+  });
+  setQueuedScores(queue);
+}
+
+function removeQueuedScoreAt(index) {
+  const queue = getQueuedScores();
+  queue.splice(index, 1);
+  setQueuedScores(queue);
+}
+
+function queueSize() {
+  return getQueuedScores().length;
+}
+
+
+async function flushQueuedScores() {
+  if (!sb || !supabaseReady) return;
+
+  const queue = getQueuedScores();
+  if (!queue.length) return;
+
+  for (let i = 0; i < queue.length; i++) {
+    const row = queue[i];
+
+    const { error } = await sb.from("scores").insert([{
+      name: row.name,
+      score: row.score,
+      accuracy: row.accuracy,
+      time_text: row.time_text,
+      time_ms: row.time_ms,
+      mode: row.mode,
+      avg_speed_ms: row.avg_speed_ms
+    }]);
+
+    if (error) {
+      console.error("Failed to flush queued score:", error);
+      supabaseReady = false;
+      if (lbStatus) lbStatus.textContent = "offline";
+      return;
+    }
+
+    removeQueuedScoreAt(0);
+  }
+
+  if (lbSaveStatus) {
+    lbSaveStatus.textContent = "Queued scores synced";
+  }
+}
+
 
 // -------------------- XML parsing --------------------
 function parseShortcutsXml(xmlText) {
@@ -820,6 +1032,7 @@ if (btnStart) {
       setStatus("No shortcuts loaded (XML not ready).", "bad");
       return;
     }
+
     syncTenExtraVisibility();
     openModal(modeModal);
   });
@@ -1009,8 +1222,15 @@ if (btnCloseWelcome) {
       "bad"
     );
     if (btnStart) btnStart.disabled = true;
+    return;
   }
 
   initSupabase();
-  loadLeaderboard();
+
+  if (btnStart) btnStart.disabled = shortcuts.length === 0;
+  setStatus("Ready. Press Start.", "ok");
+  startSupabaseMonitor();
+
+  await loadLeaderboard();
+
 })();
