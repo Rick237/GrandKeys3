@@ -117,7 +117,6 @@ function playBeep(freq, duration = 0.08, type = "sine") {
 
   osc.frequency.value = freq;
   osc.type = type;
-
   gain.gain.value = 0.15;
 
   osc.connect(gain);
@@ -230,8 +229,9 @@ function normalizeShortcut(str) {
     .toLowerCase()
     .replace(/\s+/g, "")
     .replace(/control/g, "ctrl")
-    .replace(/option/g, "alt")  // macOS Option => Alt
+    .replace(/option/g, "alt")
     .replace(/opt/g, "alt")
+    .replace(/alternate/g, "alt")
     .replace(/command/g, "meta")
     .replace(/cmd/g, "meta")
     .replace(/arrowleft/g, "left")
@@ -244,6 +244,74 @@ function modeLabelForPayload() {
   return runType === "ten"
     ? "10 keys"
     : (mode === "sequential" ? "Sequential" : "Random");
+}
+
+function keyNameFromEvent(e) {
+  const code = e.code || "";
+
+  if (/^Key[A-Z]$/.test(code)) {
+    return code.slice(3).toLowerCase();
+  }
+
+  if (/^Digit[0-9]$/.test(code)) {
+    return code.slice(5);
+  }
+
+  if (code === "NumpadAdd") return "kpadd";
+  if (code === "NumpadSubtract") return "kpsubtract";
+  if (code === "NumpadDivide") return "kpdivide";
+  if (code === "NumpadDecimal") return "kpdecimal";
+
+  const map = {
+    ArrowLeft: "left",
+    ArrowRight: "right",
+    ArrowUp: "up",
+    ArrowDown: "down",
+    PageUp: "pageup",
+    PageDown: "pagedown",
+    Space: "space",
+    Enter: "enter",
+    Escape: "escape",
+    Backspace: "backspace",
+    Delete: "delete",
+    Comma: "comma",
+    Period: "period",
+    Slash: "slash",
+    Minus: "minus",
+    Equal: "equal",
+    BracketLeft: "leftbracket",
+    BracketRight: "rightbracket"
+  };
+
+  if (map[code]) return map[code];
+
+  if (/^F\d{1,2}$/i.test(e.key)) return String(e.key).toLowerCase();
+
+  const k = String(e.key || "").toLowerCase();
+  if (k === " ") return "space";
+  return k;
+}
+
+// Internal normalized event string:
+// - On Mac, Command maps to ctrl for XML compatibility
+// - On Mac, Option maps to alt
+function eventToShortcutString(e) {
+  const mods = [];
+
+  if (IS_MAC) {
+    if (e.metaKey) mods.push("ctrl");   // Mac Command satisfies XML Ctrl
+    if (e.altKey) mods.push("alt");     // Mac Option satisfies XML Alt
+    if (e.shiftKey) mods.push("shift");
+    if (e.ctrlKey) mods.push("ctrlreal"); // optional internal distinction, not expected by XML
+  } else {
+    if (e.ctrlKey) mods.push("ctrl");
+    if (e.altKey) mods.push("alt");
+    if (e.shiftKey) mods.push("shift");
+    if (e.metaKey) mods.push("meta");
+  }
+
+  mods.push(keyNameFromEvent(e));
+  return mods.join("+");
 }
 
 // -------------------- Supabase --------------------
@@ -342,7 +410,6 @@ async function saveScoreToLeaderboard(nickname, payload) {
   const name = (nickname || "").trim().slice(0, 20) || "Player";
   const accuracy = Number(payload.accuracyPct) || 0;
   const timeMs = Number(payload.elapsedMs) || 0;
-
   const computedScore = accuracy * 10000 - timeMs;
 
   const row = {
@@ -440,7 +507,6 @@ function startSupabaseMonitor() {
   };
 
   tick();
-
   saveQueueTimer = setInterval(tick, 3000);
 }
 
@@ -611,14 +677,25 @@ function parseShortcutsXml(xmlText) {
 function normalizeExpected(shortcutText) {
   const raw = shortcutText.trim();
   const parts = raw.split("+").map((p) => p.trim());
+  const lowerParts = parts.map((p) => p.toLowerCase());
   const keyPart = parts[parts.length - 1];
 
+  // Mac-friendly XML interpretation:
+  // Ctrl in XML should be pressed with Command on Mac.
+  // Alt in XML should be pressed with Option on Mac.
   return {
     raw,
-    ctrl: parts.includes("Ctrl") || parts.includes("Control"),
-    alt: parts.includes("Alt") || parts.includes("Option") || parts.includes("Opt"),
-    shift: parts.includes("Shift"),
-    meta: parts.includes("Meta") || parts.includes("Cmd") || parts.includes("Command"),
+    ctrl: lowerParts.includes("ctrl") || lowerParts.includes("control"),
+    alt:
+      lowerParts.includes("alt") ||
+      lowerParts.includes("option") ||
+      lowerParts.includes("opt") ||
+      lowerParts.includes("alternate"),
+    shift: lowerParts.includes("shift"),
+    meta:
+      lowerParts.includes("meta") ||
+      lowerParts.includes("cmd") ||
+      lowerParts.includes("command"),
     key: normalizeKeyName(keyPart),
     code: normalizeCodeName(keyPart)
   };
@@ -685,7 +762,6 @@ function normalizeCodeName(name) {
   };
 
   if (codeMap[name]) return codeMap[name];
-
   if (/^[A-Z]$/.test(name)) return `Key${name}`;
   if (/^\d$/.test(name)) return `Digit${name}`;
 
@@ -693,10 +769,15 @@ function normalizeCodeName(name) {
 }
 
 function matchesExpected(e, expected) {
-  if (!!e.ctrlKey !== !!expected.ctrl) return false;
-  if (!!e.altKey !== !!expected.alt) return false;
-  if (!!e.shiftKey !== !!expected.shift) return false;
-  if (!!e.metaKey !== !!expected.meta) return false;
+  const actualCtrl = IS_MAC ? e.metaKey : e.ctrlKey;
+  const actualAlt = e.altKey;
+  const actualShift = e.shiftKey;
+  const actualMeta = IS_MAC ? false : e.metaKey;
+
+  if (!!actualCtrl !== !!expected.ctrl) return false;
+  if (!!actualAlt !== !!expected.alt) return false;
+  if (!!actualShift !== !!expected.shift) return false;
+  if (!!actualMeta !== !!expected.meta) return false;
 
   if (expected.code) return e.code === expected.code;
 
@@ -710,12 +791,46 @@ function matchesAnyExpected(e, expectedList) {
 
 function describePressed(e) {
   const mods = [];
-  if (e.ctrlKey) mods.push("Ctrl");
-  if (e.altKey) mods.push(IS_MAC ? "Option" : "Alt");
-  if (e.shiftKey) mods.push("Shift");
-  if (e.metaKey) mods.push(IS_MAC ? "Cmd" : "Meta");
 
-  const k = e.key === " " ? "Space" : e.key;
+  if (IS_MAC) {
+    if (e.metaKey) mods.push("Ctrl");
+    if (e.altKey) mods.push("Alt");
+    if (e.shiftKey) mods.push("Shift");
+    if (e.ctrlKey) mods.push("Ctrl");
+  } else {
+    if (e.ctrlKey) mods.push("Ctrl");
+    if (e.altKey) mods.push("Alt");
+    if (e.shiftKey) mods.push("Shift");
+    if (e.metaKey) mods.push("Meta");
+  }
+
+  const visualKey = keyNameFromEvent(e);
+  const prettyMap = {
+    left: "Left",
+    right: "Right",
+    up: "Up",
+    down: "Down",
+    pageup: "PageUp",
+    pagedown: "PageDown",
+    space: "Space",
+    enter: "Enter",
+    escape: "Escape",
+    backspace: "Backspace",
+    delete: "Delete",
+    comma: "Comma",
+    period: "Period",
+    slash: "Slash",
+    minus: "Minus",
+    equal: "Equal",
+    leftbracket: "LeftBracket",
+    rightbracket: "RightBracket",
+    kpadd: "kpAdd",
+    kpsubtract: "kpSubtract",
+    kpdivide: "kpDivide",
+    kpdecimal: "kpDecimal"
+  };
+
+  const k = prettyMap[visualKey] || visualKey;
   return mods.length ? `${mods.join("+")}+${k}` : k;
 }
 
@@ -895,7 +1010,7 @@ function stopGame(reason) {
 
   setStatus("Stopped", "bad");
   const payload = buildResultsPayload(elapsed, reason || "stopped");
-  if (reason == "user_stop") return;
+  if (reason === "user_stop") return;
   showResultsEverywhere(payload);
 
   updateStats();
@@ -977,7 +1092,7 @@ if (btnConfirmMode) {
 window.addEventListener("keydown", (e) => {
   if (!started) return;
 
-  const combo = normalizeShortcut(describePressed(e));
+  const combo = normalizeShortcut(eventToShortcutString(e));
   const key = String(e.key || "").toLowerCase();
 
   const looksLikeBrowserShortcut =
