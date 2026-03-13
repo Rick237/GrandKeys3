@@ -14,6 +14,8 @@
 		<KeyboardShortcut KeyCode="PREVIEW" Shortcut="Ctrl+Alt+P" />
 		<KeyboardShortcut KeyCode="BLIND" Shortcut="B" />
 		<KeyboardShortcut KeyCode="XKEYS" Shortcut="," />
+		<KeyboardShortcut KeyCode="PAGE_UP" Shortcut="PageUp" />
+		<KeyboardShortcut KeyCode="PAGE_DOWN" Shortcut="PageDown" />
 		<KeyboardShortcut KeyCode="LIST" Shortcut="L" />
 		<KeyboardShortcut KeyCode="X1" Shortcut="F1" />
 		<KeyboardShortcut KeyCode="X2" Shortcut="F2" />
@@ -34,6 +36,7 @@
 		<KeyboardShortcut KeyCode="EXEC 303" ExecutorIndex="303" Shortcut="Ctrl+Alt+F3" />
 		<KeyboardShortcut KeyCode="EXEC GrandKnob" SpecialExec="GrandKnob" Shortcut="Ctrl+B" />
 		<KeyboardShortcut KeyCode="DEF_GO" Shortcut="Space" />
+		<KeyboardShortcut KeyCode="DEF_GOBACK" Shortcut="Ctrl+Space" />
 		<KeyboardShortcut KeyCode="PAUSE" Shortcut="Ctrl+P" />
 		<KeyboardShortcut KeyCode="GOBACK" Shortcut="Ctrl+Alt+G" />
 		<KeyboardShortcut KeyCode="GO" Shortcut="Ctrl+G" />
@@ -79,15 +82,13 @@
 		<KeyboardShortcut KeyCode="OOPS" Shortcut="Ctrl+Z" />
 		<KeyboardShortcut KeyCode="CLEAR" Shortcut="Delete" />
 		<KeyboardShortcut KeyCode="ESC" Shortcut="Escape" />
+		<KeyboardShortcut KeyCode="+" Shortcut="kpAdd" />
 		<KeyboardShortcut KeyCode="OOPS" Shortcut="Backspace" />
+	    <KeyboardShortcutD KeyCode="+" Shortcut="Equal" />
 	</KeyboardShortCuts>
 	<KeyboardShortCutsDeactivated>
-		<KeyboardShortcutD KeyCode="+" Shortcut="Equal" />
-		<KeyboardShortcutD KeyCode="+" Shortcut="kpAdd" />
-		<KeyboardShortcutD KeyCode="PAGE_UP" Shortcut="PageUp" />
-		<KeyboardShortcutD KeyCode="PAGE_DOWN" Shortcut="PageDown" />
+
 		<KeyboardShortcutD KeyCode="TIME" Shortcut="Ctrl+T" />
-		<KeyboardShortcutD KeyCode="DEF_GOBACK" Shortcut="Ctrl+Space" />
 		<KeyboardShortcutD KeyCode="GOBACKFAST" Shortcut="LeftBracket" />
 		<KeyboardShortcutD KeyCode="GOFAST" Shortcut="RightBracket" />
 		<KeyboardShortcutD KeyCode="DEF_PAUSE" Shortcut="Alt+Space" />

@@ -1177,10 +1177,10 @@ function actuallyStartRun() {
 
 // -------------------- Load XML --------------------
 async function loadBundledXml() {
-  if (elLoadInfo) elLoadInfo.textContent = "Loading KeyboardShortCuts.xml…";
-  const res = await fetch("./KeyboardShortCuts.xml", { cache: "no-store" });
+  if (elLoadInfo) elLoadInfo.textContent = "Loading KeyboardShortCutsMac.xml…";
+  const res = await fetch("./KeyboardShortCutsMac.xml", { cache: "no-store" });
 
-  if (!res.ok) throw new Error(`Failed to load KeyboardShortCuts.xml (HTTP ${res.status})`);
+  if (!res.ok) throw new Error(`Failed to load KeyboardShortCutsMac.xml (HTTP ${res.status})`);
 
   const text = await res.text();
   shortcuts = parseShortcutsXml(text);
@@ -1227,7 +1227,7 @@ async function loadBundledXml() {
       elLoadInfo.textContent = "Failed to load XML. Check server/folder/filename.";
     }
     setStatus(
-      "Could not load KeyboardShortCuts.xml. Make sure you are using http://localhost:8000 and the XML is next to index.html.",
+      "Could not load KeyboardShortCutsMac.xml. Make sure you are using http://localhost:8000 and the XML is next to index.html.",
       "bad"
     );
     if (btnStart) btnStart.disabled = true;
