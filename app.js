@@ -621,7 +621,35 @@ function parseShortcutsXml(xmlText) {
 
   return Array.from(grouped.values());
 }
+
+function keyNameToCode(key) {
+  if (/^[a-z]$/.test(key)) return `Key${key.toUpperCase()}`;
+  if (/^[0-9]$/.test(key)) return `Digit${key}`;
+
+  const map = {
+    "ArrowLeft": "ArrowLeft",
+    "ArrowRight": "ArrowRight",
+    "ArrowUp": "ArrowUp",
+    "ArrowDown": "ArrowDown",
+    "Enter": "Enter",
+    "Escape": "Escape",
+    "Backspace": "Backspace",
+    "Delete": "Delete",
+    " ": "Space",
+    ",": "Comma",
+    ".": "Period",
+    "/": "Slash",
+    "-": "Minus",
+    "=": "Equal",
+    "[": "BracketLeft",
+    "]": "BracketRight"
+  };
+
+  return map[key] || null;
+}
 // -------------------- Matching --------------------
+
+
 function normalizeExpected(shortcutText) {
   const raw = shortcutText.trim();
   const parts = raw.split("+").map((p) => p.trim());
@@ -682,9 +710,6 @@ function normalizeCodeName(name) {
 }
 
 function matchesExpected(e, expected) {
-  // On Mac:
-  // - XML Ctrl should match Command
-  // - XML Alt should match Option
   const actualCtrl = IS_MAC ? !!e.metaKey : !!e.ctrlKey;
   const actualAlt = !!e.altKey;
   const actualShift = !!e.shiftKey;
@@ -693,9 +718,15 @@ function matchesExpected(e, expected) {
   if (actualAlt !== !!expected.alt) return false;
   if (actualShift !== !!expected.shift) return false;
 
-  // Ignore raw ctrlKey/metaKey strict comparison because on Mac
-  // Command is being treated as Ctrl logically.
+  // If XML explicitly mapped a code like kpAdd
   if (expected.code) return e.code === expected.code;
+
+  // On Mac, Option modifies e.key into symbols.
+  // So for Alt shortcuts, compare physical key position instead.
+  if (IS_MAC && expected.alt) {
+    const expectedCode = keyNameToCode(expected.key);
+    if (expectedCode) return e.code === expectedCode;
+  }
 
   const actualKey = /^[A-Z]$/.test(e.key) ? e.key.toLowerCase() : e.key;
   return actualKey === expected.key;
