@@ -76,7 +76,7 @@
 		<KeyboardShortcut KeyCode="." Shortcut="." />
 		<KeyboardShortcut KeyCode="IF" Shortcut="I" />
 		<KeyboardShortcut KeyCode="AT" Shortcut="A" />
-		<KeyboardShortcut KeyCode="THRU" Shortcut="/" />
+		<KeyboardShortcut KeyCode="/" Shortcut="/" />
 		<KeyboardShortcut KeyCode="PLEASE" Shortcut="Enter" />
 		<KeyboardShortcut KeyCode="FULL" Shortcut="Ctrl+F" />
 		<KeyboardShortcut KeyCode="OOPS" Shortcut="Ctrl+Z" />
