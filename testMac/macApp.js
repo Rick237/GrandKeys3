@@ -299,10 +299,10 @@ function eventToShortcutString(e) {
   const mods = [];
 
   if (IS_MAC) {
-    if (e.metaKey) mods.push("ctrl");   // Mac Command satisfies XML Ctrl
-    if (e.altKey) mods.push("alt");     // Mac Option satisfies XML Alt
+    // Treat both Control and Command as XML Ctrl
+    if (e.ctrlKey || e.metaKey) mods.push("ctrl");
+    if (e.altKey) mods.push("alt");
     if (e.shiftKey) mods.push("shift");
-    if (e.ctrlKey) mods.push("ctrlreal"); // optional internal distinction, not expected by XML
   } else {
     if (e.ctrlKey) mods.push("ctrl");
     if (e.altKey) mods.push("alt");
@@ -769,15 +769,27 @@ function normalizeCodeName(name) {
 }
 
 function matchesExpected(e, expected) {
-  const actualCtrl = IS_MAC ? e.metaKey : e.ctrlKey;
+  // On Mac:
+  // - XML Ctrl accepts either physical Control or Command
+  // - XML Alt accepts Option
+  // - XML Meta/Command accepts only Command
+  const actualCtrl = IS_MAC ? (e.ctrlKey || e.metaKey) : e.ctrlKey;
   const actualAlt = e.altKey;
   const actualShift = e.shiftKey;
-  const actualMeta = IS_MAC ? false : e.metaKey;
+  const actualMeta = IS_MAC ? e.metaKey : e.metaKey;
 
   if (!!actualCtrl !== !!expected.ctrl) return false;
   if (!!actualAlt !== !!expected.alt) return false;
   if (!!actualShift !== !!expected.shift) return false;
-  if (!!actualMeta !== !!expected.meta) return false;
+
+  // Only enforce meta if XML explicitly asks for it
+  if (!!expected.meta) {
+    if (!actualMeta) return false;
+  } else {
+    // If XML does NOT ask for meta, don't reject just because Command
+    // is being used as Ctrl on Mac.
+    if (!IS_MAC && !!actualMeta !== !!expected.meta) return false;
+  }
 
   if (expected.code) return e.code === expected.code;
 
