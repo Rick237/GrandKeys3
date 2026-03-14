@@ -6,7 +6,7 @@
     <title>Keyboard Shortcut Tester V1.0.0</title>
     <meta http-equiv="Cache-Control" content="no-store" />
     <link rel="icon" href="./favicon.ico">
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./macStyles.css" />
     <script type="module">
       import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -18,7 +18,7 @@
     <div class="topbar">
       <div class="topinner">
         <div class="topleft">
-          <h1>GrandMa3 on PC Keyboard Shortcut V1.0.0</h1>
+          <h1>GrandMa3 on MAC Keyboard Shortcut V1.0.0</h1>
           <div class="timer mono" id="timer">00:00.0</div>
         </div>
         
@@ -234,7 +234,7 @@
     <div class="bottombar">
        <div class="bottominner">
         <div class=" small">Not Affiliated with MA Lighting International GmbH</div> 
-        <div class=" small">Teasted on Windows 11- Chrome/Firefox</div>
+        <div class=" small">Teasted on Apple Macbook pro Chrome/Safari</div>
         <div class=" small">Made by Rick237</div>
         <div class=" small">This work is licensed under <a class="warning" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></div>
         
@@ -245,22 +245,17 @@
   <div class="modal">
     <div class="modalTitle">Welcome to the GrandMA3 Keyboard Shortcut Tester</div>
 
-    <div class="modalBody small">
+    <div class="modalBody small welcomeModal">
       Learn or beat the record.
       <br><br>
-      Press <b>Start</b> to begin testing keyboard shortcuts on the top right corner.<br>
-      This tool use the default shortcut in the MA3onPC file. <br>
+      Press <b>Start</b> to begin testing keyboard shortcuts on the top right corner.<br><br>
+      This tool use the default shortcut in the MA3onPC file. <br><br>
+
+      Known errors:<br>
       Sometimes the <b>Leaderboard</b> is not loading just refresh the page<br>
-      Some of the Shortcut are disabled because of the limitation of running on webpage. <br><br>
-       <b>Disabled Shortcut:</b><br>
-      Time - Ctrl+T (Open a new tab on chrome)<br>
-      GoBackFast - LeftBracket <br>
-      GoBackFast - RightBracket<br>
-      Def_pause - Alt+Space (Default windows key)<br>
-      Exec 104-112 - ctrl+F4 (Obvius... + Repetitive)<br>
-      Exec 204-212 - Same as above<br>
-      Exec 304-312 - Same as above<br>
-      OnPC_Screen 2-7 (Repetitive and not usefule for my idea)<br>
+      Some of the Shortcut are <b>disabled</b> because of the limitation of running on webpage. <br>
+      
+      <a class="warning" href="./KeyboardShortCutsMac.xml">Click here</a> to see the full list of Shortcuts
     </div>
 
     <div class="modalActions">
@@ -269,6 +264,6 @@
   </div>
 </div>
 
-    <script src="./app.js"></script>
+    <script src="./macApp.js"></script>
   </body>
 </html>
