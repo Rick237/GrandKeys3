@@ -277,7 +277,7 @@ async function loadLeaderboard() {
   const selectedMode = lbModeFilter ? lbModeFilter.value : "all";
 
   let query = sb
-    .from("scores")
+    .from("scores_2win")
     .select("name, score, accuracy, time_text, time_ms, mode, avg_speed_ms");
 
   if (selectedMode !== "all") {
@@ -369,7 +369,7 @@ try {
   }
 
 
-  const { error } = await sb.from("scores").insert([row]);
+  const { error } = await sb.from("scores_2win").insert([row]);
 
 if (error) {
 
@@ -401,7 +401,7 @@ async function checkSupabaseConnection() {
 
   try {
     const { error } = await sb
-      .from("scores")
+      .from("scores_2win")
       .select("score", { head: true, count: "exact" });
 
     return !error;
@@ -541,7 +541,7 @@ async function flushQueuedScores() {
   for (let i = 0; i < queue.length; i++) {
     const row = queue[i];
 
-    const { error } = await sb.from("scores").insert([{
+    const { error } = await sb.from("scores_2win").insert([{
       name: row.name,
       score: row.score,
       accuracy: row.accuracy,
