@@ -151,14 +151,12 @@ button:disabled {
   margin: 0 auto;
   padding: 18px;
   display: grid;
-  grid-template-columns: 450px 1fr 260px;
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
 .card {
   background: #2B2B2B;
   border: 1px solid #232323;
-  border-radius: 16px;
   padding: 18px;
 }
 
@@ -169,12 +167,35 @@ button:disabled {
   padding-bottom: 5px;
 }
 
+.card.ThreeWin {
+
+  color: defualt;
+}
+
+.card.ThreeMac {
+ background-color: #3E5163;
+}
+.card.TwoWin {
+color: #FFBF00;
+}
+.card.Custom {
+color: defult;
+}
+
+
+
 .row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+
+}
+
+.row.space
+{
+  padding-top: 10px;
 }
 
 .label {
@@ -194,11 +215,20 @@ button:disabled {
   font-weight: 900;
 }
 
+.label.title{
+  font-size: 30px;
+  opacity: 1;
+  font-weight: 900;
+}
+
 .small {
   opacity: 0.75;
   font-size: 13px;
 }
-
+.small.height
+{
+  height: 150px;
+}
 .small.welcomeModal {
   opacity: 1;
   font-size: 15px;
@@ -394,4 +424,10 @@ textarea {
   border: 1px solid #444;
   background: #111;
   color: white;
+}
+
+.filter {
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
