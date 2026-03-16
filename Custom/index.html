@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keyboard Shortcut Tester V1.0.0</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <link rel="icon" href="./favicon.ico">
+    <link rel="stylesheet" href="./CustomStyles.css" />
+    <script type="module">
+      import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+      window.supabase = { createClient };
+    </script>
+  </head>
+
+  <body>
+    <div class="topbar">
+      <div class="topinner">
+        <div class="topleft">
+          <h1>GrandMa3 on MAC Keyboard Shortcut V1.0.0</h1>
+          <div class="timer mono" id="timer">00:00.0</div>
+        </div>
+        
+
+        <div class="controls">
+          <button class="button " id="btnStart" disabled>Start</button>
+          <button class="button " id="btnStop" disabled>Stop</button>
+          <button id="btnNext" disabled>Next</button>
+          <button id="btnToggleShow" disabled>Show Shortcut</button>
+          <button id="btnMode" disabled style="display:none;">Mode: —</button>
+          <button id="btnReset">Reset</button>
+        </div>
+      </div>
+      <div class="topinner secondrow small">Learn and get faster using the keyboard shortcut with this tool for GrandMA3 on PC</div>
+    </div>
+
+    <div class="wrap">
+      <!-- LEADERBOARD MOVED TO LEFT -->
+        <div class="card small-radius" id="leaderboardCard">
+          <div class="row" style="justify-content:space-between;align-items:center;gap:12px;">
+            <div>
+              <div class="label leaderboard">Leaderboard</div>
+              <div class="small">Top scores with time, mode and avg speed</div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label for="lbModeFilter" class="small mono">Filter mode:</label>
+              <select id="lbModeFilter">
+                <option value="all">All</option>
+                <option value="Sequential">Sequential</option>
+                <option value="Random">Random</option>
+                <option value="10 keys">10 keys</option>
+                
+              </select>
+            </div>
+          </div>
+
+          <div class="small mono" style="margin-top:8px;">
+            status: <span id="lbStatus">offline</span>
+          </div>
+
+          <div id="leaderboardList" class="small" style="margin-top:12px;"></div>
+        </div>
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="card">
+          <div class="status" id="status"></div>
+          <div class="keycodeWrap">
+            <div class="label keycode">KeyCode</div>
+            <div class="keycode color mono" id="keycode">....</div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="label">Shortcut (hidden by default)</div>
+              <div class="small">
+                Press the keys. Use “Show Shortcut” only if you need to reveal the expected combo.
+              </div>
+            </div>
+            <div class="small mono" id="progress">0 / 0</div>
+          </div>
+
+          <div class="shortcutBox">
+            <div id="shortcutHidden" class="shortcutHidden">Shortcut is hidden</div>
+            <div id="shortcutText" class="shortcutText" style="display:none;">—</div>
+          </div>
+
+          
+          <div class="small mono" id="hint"></div>
+
+          <!-- <div class="log" id="log"></div>  -- DISABLE THE LOG OF ERROR --> 
+        </div>
+
+        <div class="card resultsCard" id="resultsCard" style="display:none;">
+          <div class="row">
+            <div>
+              <div class="label">Results</div>
+              <div class="small">Summary of this run.</div>
+            </div>
+            <div class="small mono" id="resultsTime">time: —</div>
+          </div>
+
+          <div class="row mt10">
+            <div class="pill">Attempts: <span class="mono" id="resultsAttempts">0</span></div>
+            <div class="pill">Correct: <span class="mono" id="resultsCorrect">0</span></div>
+            <div class="pill">Errors: <span class="mono" id="resultsErrors">0</span></div>
+            <div class="pill">Accuracy: <span class="mono" id="resultsAcc">0%</span></div>
+          </div>
+
+          <div class="row mt10">
+            <div class="pill">Avg speed: <span class="mono" id="resultsAvg">—</span></div>
+            <div class="pill">Last speed: <span class="mono" id="resultsLast">—</span></div>
+          </div>
+          <!--
+          <div class="mt12">
+            <div class="label">Results JSON</div>
+            <textarea id="resultsJson" class="mono" readonly></textarea>
+          </div>
+        </div>-->
+
+        
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      
+    </div>
+<div class="side">
+        <div class="stat">
+          <div class="label">Correct</div>
+          <div class="big mono" id="correct">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Speed (between keypresses)</div>
+          <div class="big mono" id="speed">—</div>
+          <div class="small mono" id="avgSpeed">avg: —</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Errors</div>
+          <div class="big mono" id="errors">0</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Loaded</div>
+          <div class="big mono" id="loaded">0</div>
+          <div class="small">shortcuts</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Accuracy</div>
+          <div class="big mono" id="acc">0%</div>
+        </div>
+
+        <div class="stat">
+          <div class="label">Load status</div>
+          <div class="small mono" id="loadInfo">Loading KeyboardShortCuts.xml…</div>
+        </div>
+      </div>
+
+<!-- MODE PICKER MODAL -->
+<div class="modalBackdrop" id="modeModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modalTitle">Choose a mode</div>
+    <div class="modalBody small">
+      Pick how you want to run the test.
+    </div>
+
+    <div class="modalOptions">
+      <label class="radio">
+        <input type="radio" name="modeChoice" value="sequential" checked />
+        <span><b>Full</b> (go through the whole list in order)</span>
+      </label>
+
+      <label class="radio">
+        <input type="radio" name="modeChoice" value="random" />
+        <span><b>Random</b> (go thru the whole random shortcut each time)</span>
+      </label>
+
+      <label class="radio">
+        <input type="radio" name="modeChoice" value="ten" />
+        <span><b>10 keys</b> (10 random shortcuts, no repeats)</span>
+      </label>
+    </div>
+
+    <div class="modalActions">
+      <button class="btnSecondary" id="btnCancelMode">Cancel</button>
+      <button id="btnConfirmMode">Start</button>
+    </div>
+  </div>
+</div>
+
+    <!-- RESULTS MODAL -->
+    <div class="modalBackdrop" id="resultsModal" aria-hidden="true">
+      <div class="modal">
+        <div class="modalTitle">Results</div>
+        <div class="modalBody">
+          <div class="resultsGrid">
+            <div class="pill">Time: <span class="mono" id="mTime">—</span></div>
+            <div class="pill">Attempts: <span class="mono" id="mAttempts">0</span></div>
+            <div class="pill">Correct: <span class="mono" id="mCorrect">0</span></div>
+            <div class="pill">Errors: <span class="mono" id="mErrors">0</span></div>
+            <div class="pill">Accuracy: <span class="mono" id="mAcc">0%</span></div>
+            <div class="pill">Avg speed: <span class="mono" id="mAvg">—</span></div>
+            <div class="pill">Last speed: <span class="mono" id="mLast">—</span></div>
+            <div class="pill">Mode: <span class="mono" id="mMode">—</span></div>
+          </div>
+          <!-- Json Results
+          <div class="mt12">
+            <div class="label">Results JSON</div>
+            <textarea id="mJson" class="mono" readonly></textarea>
+          </div>
+          -->
+
+          <div class="mt12">
+            <div class="label">Save to leaderboard</div>
+            <div class="small" style="margin-top:6px;">Nickname (max 20 chars):</div>
+
+            <div class="row mt10" style="gap:8px;">
+              <input id="lbName" maxlength="20" placeholder="Your nickname" style="flex:1;" />
+              <button id="btnSaveScore">Save</button>
+            </div>
+
+            <div class="small mono" id="lbSaveStatus" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <div class="modalActions">
+          <button class="btnSecondary" id="btnCloseResults">Close</button>
+        </div>
+      </div>
+    </div>
+    <div class="bottombar">
+       <div class="bottominner">
+        <div class=" small">Not Affiliated with MA Lighting International GmbH</div> 
+        <div class=" small">Teasted on Apple Macbook pro Chrome/Safari</div>
+        <div class=" small">Made by Rick237</div>
+        <div class=" small">This work is licensed under <a class="warning" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></div>
+        
+       </div>
+    </div>
+
+    <div class="modalBackdrop" id="welcomeModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modalTitle">Welcome to the GrandMA3 Keyboard Shortcut Tester</div>
+
+    <div class="modalBody small welcomeModal">
+      Learn or beat the record.
+      <br><br>
+      Press <b>Start</b> to begin testing keyboard shortcuts on the top right corner.<br><br>
+      This tool use the default shortcut in the MA3onPC file. <br><br>
+
+      Known errors:<br>
+      Sometimes the <b>Leaderboard</b> is not loading just refresh the page<br>
+      Some of the Shortcut are <b>disabled</b> because of the limitation of running on webpage. <br>
+      
+      <a class="warning" href="./KeyboardShortCutsMac.xml">Click here</a> to see the full list of Shortcuts
+    </div>
+
+    <div class="modalActions">
+      <button id="btnCloseWelcome">Close</button>
+    </div>
+  </div>
+</div>
+
+    <script src="./CustomApp.js"></script>
+  </body>
+</html>
