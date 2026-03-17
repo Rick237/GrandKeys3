@@ -190,13 +190,29 @@ function updateStats() {
 
   if (!shortcuts.length) {
     elProgress.textContent = "0 / 0";
-  } else if (runType === "ten") {
-    const done = Math.max(0, 10 - tenRemaining);
-    elProgress.textContent = `${done} / 10`;
-  } else {
-    const shownIndex = mode === "sequential" ? Math.min(idx + 1, shortcuts.length) : "—";
-    elProgress.textContent = `${shownIndex} / ${shortcuts.length}`;
+    return;
   }
+
+  if (runType === "ten") {
+    const shownIndex = started && current ? Math.min(10, 10 - tenPool.length) : 0;
+    elProgress.textContent = `${shownIndex} / 10`;
+    return;
+  }
+
+  if (mode === "random") {
+    const shownIndex = started && current
+      ? Math.min(shortcuts.length, shortcuts.length - fullRandomPool.length)
+      : 0;
+    elProgress.textContent = `${shownIndex} / ${shortcuts.length}`;
+    return;  
+  }
+
+  const shownIndex = started && current
+    ? Math.min(idx + 1, shortcuts.length)
+    : 0;
+
+  elProgress.textContent = `${shownIndex} / ${shortcuts.length}`;
+
 }
 
 function setLoadedShortcuts(shortcutList, sourceLabel) {
@@ -907,10 +923,17 @@ function pickNext() {
   }
 
   if (mode === "random") {
-    setCurrent(randomPick(shortcuts));
-  } else {
-    setCurrent(shortcuts[Math.min(idx, shortcuts.length - 1)]);
-  }
+    if (!fullRandomPool.length) {
+          setStatus("✅ Finished all shortcuts (random).", "ok");
+          stopGame("finished_all");
+          return;
+        }
+
+        const item = fullRandomPool.shift();
+        setCurrent(item);
+        return;
+      }
+      setCurrent(shortcuts[Math.min(idx, shortcuts.length - 1)]);
 }
 
 function advanceIfNeededAfterCorrect() {
@@ -923,6 +946,15 @@ function advanceIfNeededAfterCorrect() {
     }
     return;
   }
+
+if (mode === "random") {
+    if (fullRandomPool.length <= 0) {
+      setStatus("✅ Finished all shortcuts (random).", "ok");
+      stopGame("finished_all");
+    }
+    return;
+  }
+
 
   if (mode === "sequential") {
     idx += 1;
@@ -1187,8 +1219,22 @@ if (btnNext) {
       return;
     }
 
-    if (mode === "sequential") idx = Math.min(idx + 1, shortcuts.length - 1);
+     if (mode === "random") {
+      if (!fullRandomPool.length) {
+        stopGame("finished_all");
+      } else {
+        pickNext();
+      }
+      updateStats();
+      return;
+    }
+
+    if (mode === "sequential") {
+      idx = Math.min(idx + 1, shortcuts.length - 1);
+    }
+
     pickNext();
+    updateStats();
   });
 }
 
@@ -1225,6 +1271,8 @@ if (btnReset) {
     mode = "sequential";
     tenStyle = "random";
     tenRemaining = 0;
+    tenPool = [];
+    fullRandomPool = [];
 
     runId = null;
     lastResultsPayload = null;
@@ -1276,11 +1324,16 @@ function actuallyStartRun() {
 
   idx = 0;
   tenPool = [];
+  fullRandomPool = [];
 
   if (runType === "ten") {
     const shuffled = [...shortcuts].sort(() => Math.random() - 0.5);
     tenPool = shuffled.slice(0, Math.min(10, shuffled.length));
     tenRemaining = tenPool.length;
+  }
+
+  if (mode === "random") {
+    fullRandomPool = [...shortcuts].sort(() => Math.random() - 0.5);
   }
 
   if (btnStart) btnStart.disabled = true;
