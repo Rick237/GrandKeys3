@@ -1,3 +1,4 @@
+
 // -------------------- State --------------------
 let shortcuts = [];
 let allowedShortcuts = new Set();
@@ -58,6 +59,8 @@ const elLoaded = document.getElementById("loaded");
 const elAcc = document.getElementById("acc");
 const elProgress = document.getElementById("progress");
 const elLoadInfo = document.getElementById("loadInfo");
+const elXmlFile = document.getElementById("xmlFile");
+const elXmlFileName = document.getElementById("xmlFileName");
 
 const btnStart = document.getElementById("btnStart");
 const btnStop = document.getElementById("btnStop");
@@ -196,6 +199,31 @@ function updateStats() {
   }
 }
 
+function setLoadedShortcuts(shortcutList, sourceLabel) {
+  shortcuts = Array.isArray(shortcutList) ? shortcutList : [];
+
+  if (elLoadInfo) {
+    elLoadInfo.textContent = shortcuts.length
+      ? `Loaded: ${shortcuts.length} shortcuts${sourceLabel ? ` (${sourceLabel})` : ""}`
+      : `Loaded: 0 shortcuts${sourceLabel ? ` (${sourceLabel})` : ""}`;
+  }
+
+  if (btnStart) btnStart.disabled = shortcuts.length === 0;
+
+  if (shortcuts.length) {
+    setStatus("Ready. Press Start.", "ok");
+  } else {
+    setStatus("XML loaded but 0 shortcuts found.", "bad");
+  }
+
+  updateStats();
+}
+
+async function loadXmlFromText(xmlText, sourceLabel = "uploaded XML") {
+  const parsed = parseShortcutsXml(xmlText);
+  setLoadedShortcuts(parsed, sourceLabel);
+}
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
@@ -324,6 +352,10 @@ function initSupabase() {
       SUPABASE_ANON_KEY
     ) {
       sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log("Supabase client initialized");
+    } else {
+      console.warn("Supabase not available on window");
+      sb = null;
     }
   } catch (e) {
     console.warn("Supabase init failed", e);
@@ -349,16 +381,16 @@ async function loadLeaderboard() {
   const selectedMode = lbModeFilter ? lbModeFilter.value : "all";
 
   let query = sb
-    .from("scores_mac")
+    .from("scores_custom")
     .select("name, score, accuracy, time_text, time_ms, mode, avg_speed_ms");
 
   if (selectedMode !== "all") {
     query = query.eq("mode", selectedMode);
   }
 
-  const { data, error } = await query
-    .order("score", { ascending: false })
-    .limit(10);
+const { data, error } = await query
+  .order("score", { ascending: false })
+  .limit(10);
 
   if (error) {
     console.error(error);
@@ -370,7 +402,7 @@ async function loadLeaderboard() {
       </div>
     `;
     return;
-  }
+ }
 
   lbStatus.textContent = "online";
 
@@ -379,29 +411,30 @@ async function loadLeaderboard() {
     return;
   }
 
-  leaderboardList.innerHTML = (data || []).map((row, i) => {
-    let medal = `${i + 1}.`;
+leaderboardList.innerHTML = (data || []).map((row, i) => {
 
-    if (i === 0) medal = "🥇";
-    else if (i === 1) medal = "🥈";
-    else if (i === 2) medal = "🥉";
+  let medal = `${i + 1}.`;
 
-    return `
-      <div class="logItem" style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;gap:12px;">
-          <span class="small leaderboardName"><b>${medal}</b> ${escapeHtml(row.name || "Player")}</span>
-          <span class="mono"><b>${Math.round(row.score ?? 0)}</b></span>
-        </div>
+  if (i === 0) medal = "🥇";
+  else if (i === 1) medal = "🥈";
+  else if (i === 2) medal = "🥉";
 
-        <div class="small mono" style="margin-top:4px;">
-          acc: ${row.accuracy ?? 0}% ·
-          time: ${escapeHtml(row.time_text || "—")} ·
-          mode: ${escapeHtml(row.mode || "—")} ·
-          avg: ${row.avg_speed_ms != null ? `${row.avg_speed_ms} ms` : "—"}
-        </div>
+  return `
+    <div class="logItem" style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;">
+        <span class="small leaderboardName"><b>${medal}</b> ${escapeHtml(row.name || "Player")}</span>
+        <span class="mono"><b>${Math.round(row.score ?? 0)}</b></span>
       </div>
-    `;
-  }).join("");
+
+      <div class="small mono" style="margin-top:4px;">
+        acc: ${row.accuracy ?? 0}% ·
+        time: ${escapeHtml(row.time_text || "—")} ·
+        mode: ${escapeHtml(row.mode || "—")} ·
+        avg: ${row.avg_speed_ms != null ? `${row.avg_speed_ms} ms` : "—"}
+      </div>
+    </div>
+  `;
+}).join("");
 }
 
 async function saveScoreToLeaderboard(nickname, payload) {
@@ -434,7 +467,7 @@ async function saveScoreToLeaderboard(nickname, payload) {
     return;
   }
 
-  const { error } = await sb.from("scores_mac").insert([row]);
+  const { error } = await sb.from("scores_custom").insert([row]);
 
   if (error) {
     console.error(error);
@@ -456,21 +489,6 @@ async function saveScoreToLeaderboard(nickname, payload) {
   closeModal(resultsModal);
 }
 
-async function checkSupabaseConnection() {
-  if (!sb) return false;
-
-  try {
-    const { error } = await sb
-      .from("scores_mac")
-      .select("score", { head: true, count: "exact" });
-
-    return !error;
-  } catch (err) {
-    console.warn("Supabase unreachable:", err);
-    return false;
-  }
-}
-
 async function ensureSupabaseConnection() {
   if (!sb) {
     supabaseReady = false;
@@ -478,78 +496,55 @@ async function ensureSupabaseConnection() {
     return false;
   }
 
-  const ok = await checkSupabaseConnection();
-  supabaseReady = ok;
+  try {
+    const { error } = await sb
+      .from("scores_custom")
+      .select("id")
+      .limit(1);
 
-  if (lbStatus) {
-    lbStatus.textContent = ok ? "online" : "offline";
+    supabaseReady = !error;
+
+    if (lbStatus) {
+      lbStatus.textContent = supabaseReady ? "online" : "offline";
+    }
+
+    if (error) {
+      console.warn("Supabase check failed:", error);
+    }
+
+    return supabaseReady;
+  } catch (err) {
+    console.warn("Supabase unreachable:", err);
+    supabaseReady = false;
+    if (lbStatus) lbStatus.textContent = "offline";
+    return false;
   }
-
-  return ok;
 }
 
 function startSupabaseMonitor() {
-  if (supabaseChecking) return;
-  supabaseChecking = true;
+  if (saveQueueTimer) clearInterval(saveQueueTimer);
 
   const tick = async () => {
-    const wasReady = supabaseReady;
     const ok = await ensureSupabaseConnection();
 
-    if (ok && !wasReady) {
+    if (ok) {
       await flushQueuedScores();
-      await loadLeaderboard();
     }
 
-    if (!ok && lbStatus) {
-      lbStatus.textContent = "reconnecting...";
-    }
+    await loadLeaderboard();
   };
 
   tick();
-  saveQueueTimer = setInterval(tick, 3000);
+  saveQueueTimer = setInterval(tick, 5000);
 }
 
 function stopSupabaseMonitor() {
-  supabaseChecking = false;
   if (saveQueueTimer) {
     clearInterval(saveQueueTimer);
     saveQueueTimer = null;
   }
 }
 
-async function waitForSupabaseConnection() {
-  if (supabaseChecking) return;
-  supabaseChecking = true;
-
-  while (!supabaseReady) {
-    const ok = await checkSupabaseConnection();
-
-    if (ok) {
-      supabaseReady = true;
-      supabaseChecking = false;
-
-      if (lbStatus) lbStatus.textContent = "online";
-      await loadLeaderboard();
-
-      if (shortcuts.length && btnStart) {
-        btnStart.disabled = false;
-      }
-
-      setStatus("Ready. Press Start.", "ok");
-      return;
-    }
-
-    supabaseReady = false;
-    if (lbStatus) lbStatus.textContent = "reconnecting...";
-    if (btnStart) btnStart.disabled = true;
-    setStatus("Waiting for leaderboard connection…", "bad");
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  }
-
-  supabaseChecking = false;
-}
 
 const SCORE_QUEUE_KEY = "kb_score_queue";
 
@@ -599,7 +594,7 @@ async function flushQueuedScores() {
   for (let i = 0; i < queue.length; i++) {
     const row = queue[i];
 
-    const { error } = await sb.from("scores_mac").insert([{
+    const { error } = await sb.from("scores_custom").insert([{
       name: row.name,
       score: row.score,
       accuracy: row.accuracy,
@@ -1310,18 +1305,43 @@ async function loadBundledXml() {
   if (!res.ok) throw new Error(`Failed to load KeyboardShortCutsMac.xml (HTTP ${res.status})`);
 
   const text = await res.text();
-  shortcuts = parseShortcutsXml(text);
+  await loadXmlFromText(text, "bundled XML");
+}
 
-  if (elLoadInfo) elLoadInfo.textContent = `Loaded: ${shortcuts.length} shortcuts`;
-  updateStats();
+async function handleXmlUpload(file) {
+  if (!file) return;
 
-  if (shortcuts.length) {
-    if (btnStart) btnStart.disabled = false;
-    setStatus("Ready. Press Start.", "ok");
-  } else {
-    if (btnStart) btnStart.disabled = true;
-    setStatus("XML loaded but 0 shortcuts found.", "bad");
+  if (elXmlFileName) {
+    elXmlFileName.textContent = file.name;
   }
+
+  if (elLoadInfo) {
+    elLoadInfo.textContent = `Loading ${file.name}…`;
+  }
+
+  const xmlText = await file.text();
+  await loadXmlFromText(xmlText, file.name);
+}
+
+
+if (elXmlFile) {
+  elXmlFile.addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    try {
+      if (started) stopGame("user_stop");
+      hideResultsCard();
+      await handleXmlUpload(file);
+    } catch (err) {
+      console.error(err);
+      if (elLoadInfo) {
+        elLoadInfo.textContent = `Failed to load ${file.name}`;
+      }
+      setStatus("Could not parse the selected XML file.", "bad");
+      if (btnStart) btnStart.disabled = true;
+    }
+  });
 }
 
 // -------------------- Init --------------------
@@ -1344,28 +1364,25 @@ async function loadBundledXml() {
   }
 
   updateStats();
-  setStatus("Loading XML…", "");
 
-  try {
-    await loadBundledXml();
-  } catch (err) {
-    console.error(err);
-    if (elLoadInfo) {
-      elLoadInfo.textContent = "Failed to load XML. Check server/folder/filename.";
-    }
-    setStatus(
-      "Could not load KeyboardShortCutsMac.xml. Make sure you are using http://localhost:8000 and the XML is next to index.html.",
-      "bad"
-    );
-    if (btnStart) btnStart.disabled = true;
-    return;
+  if (elLoadInfo) {
+    elLoadInfo.textContent = "No XML loaded. Please upload a KeyboardShortCuts XML file.";
   }
 
-  initSupabase();
+  setStatus("Upload an XML file to begin.", "warning");
 
-  if (btnStart) btnStart.disabled = shortcuts.length === 0;
+  if (btnStart) btnStart.disabled = true;
+
+    initSupabase();
+
+if (btnStart) btnStart.disabled = shortcuts.length === 0;
+
+if (shortcuts.length) {
   setStatus("Ready. Press Start.", "ok");
-  startSupabaseMonitor();
+} else {
+  setStatus("Upload an XML file to begin.", "warning");
+}
 
-  await loadLeaderboard();
+startSupabaseMonitor();
+await loadLeaderboard();
 })();

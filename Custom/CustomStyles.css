@@ -14,7 +14,7 @@ body {
   padding: 10px 0;
   z-index: 1000;
   
-  /*border-bottom: 1px solid #232323;*/
+  /*border-bottom: 1px solid #253341;*/
 }
 
 .topbar {
@@ -23,7 +23,7 @@ body {
   z-index: 10;
   background: #2c3e50;
   
-  /*border-bottom: 1px solid #232323;*/
+  /*border-bottom: 1px solid #253341;*/
 }
 
 .topinner {
@@ -76,7 +76,7 @@ h1 {
   font-weight: 900;
   font-size: 16px;
   padding: 6px 10px;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   border-radius: 10px;
   background: #34495e;
 }
@@ -96,7 +96,7 @@ h1 {
 }
 .keycode.color
 {
-  color: #2c3e50;
+  color: #e9eefc;
 }
 
 .controls {
@@ -108,7 +108,7 @@ h1 {
 
 button {
   background: #34495e;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   color: #e9eefc;
   padding: 10px 12px;
   border-radius: 10px;
@@ -139,7 +139,7 @@ button:disabled {
 }
 .btnSecondary {
   background: #34495e;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
 }
 
 .btnSecondary:hover {
@@ -157,7 +157,7 @@ button:disabled {
 
 .card {
   background: #2c3e50;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   border-radius: 16px;
   padding: 18px;
 }
@@ -214,7 +214,7 @@ button:disabled {
   margin-top: 14px;
   padding: 14px;
   border-radius: 12px;
-  border: 3px dashed #232323;
+  border: 3px dashed #253341;
   background: #2c3e50;
 }
 
@@ -263,7 +263,7 @@ button:disabled {
   gap: 6px;
   padding: 12px;
   border-radius: 14px;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   background: #2c3e50;
   margin-bottom: 10px;
 }
@@ -277,21 +277,21 @@ button:disabled {
   margin-top: 12px;
   max-height: 300px;
   overflow: auto;
-  border-top: 1px solid #232323;
+  border-top: 1px solid #253341;
   padding-top: 10px;
 }
 
 .logItem {
   padding: 8px 10px;
-  border: 2px solid #232323;
+  border: 2px solid #253341;
   border-radius: 12px;
   margin-bottom: 8px;
-  background: #2c3e50;
+  background: #34495e;
 }
 
 .pill {
   background: #2c3e50;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   border-radius: 999px;
   padding: 8px 12px;
 }
@@ -313,7 +313,7 @@ textarea {
   min-height: 140px;
   resize: vertical;
   background: #2c3e50;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   border-radius: 12px;
   color: #e9eefc;
   padding: 10px;
@@ -339,7 +339,7 @@ textarea {
 .modal {
   width: min(720px, 100%);
   background: #34495e;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
@@ -367,7 +367,7 @@ textarea {
   align-items: flex-start;
   padding: 10px;
   border-radius: 12px;
-  border: 1px solid #232323;
+  border: 1px solid #253341;
   background: #2c3e50;
 }
 
@@ -394,4 +394,35 @@ textarea {
   border: 1px solid #444;
   background: #34495e;
   color: white;
+}
+
+.xmlUploadWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.xmlUploadLabel {
+  font-weight: 700;
+}
+
+#xmlFile {
+  color: #e9eefc;
+}
+
+#xmlFile::file-selector-button {
+  background: #34495e;
+  border: 1px solid #253341;
+  color: #e9eefc;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-right: 10px;
+}
+
+#xmlFile::file-selector-button:hover {
+  opacity: 0.55;
 }

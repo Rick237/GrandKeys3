@@ -7,11 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-store" />
     <link rel="icon" href="./favicon.ico">
     <link rel="stylesheet" href="./CustomStyles.css" />
-    <script type="module">
-      import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-      window.supabase = { createClient };
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
 
   <body>
@@ -32,7 +28,14 @@
           <button id="btnReset">Reset</button>
         </div>
       </div>
-      <div class="topinner secondrow small">Learn and get faster using the keyboard shortcut with this tool for GrandMA3 on PC</div>
+      <div class="topinner secondrow small">
+        <div>Learn and get faster using the keyboard shortcut with this tool for GrandMA3 on PC</div>
+        <div class="xmlUploadWrap">
+          <label for="xmlFile" class="xmlUploadLabel">Upload XML</label>
+          <input id="xmlFile" type="file" accept=".xml,text/xml,application/xml" />
+          <span class="small mono" id="xmlFileName">Upload a XML File</span>
+        </div>
+      </div>
     </div>
 
     <div class="wrap">
@@ -57,7 +60,7 @@
           </div>
 
           <div class="small mono" style="margin-top:8px;">
-            status: <span id="lbStatus">offline</span>
+            status: <span id="lbStatus">checking...</span>
           </div>
 
           <div id="leaderboardList" class="small" style="margin-top:12px;"></div>
