@@ -365,7 +365,8 @@ const row = {
   time_text: payload.elapsedHuman || null,
   time_ms: payload.elapsedMs || null,
   mode: payload.mode || null,
-  avg_speed_ms: payload.avgDeltaMs != null ? Number(payload.avgDeltaMs) : null
+  avg_speed_ms: payload.avgDeltaMs != null ? Number(payload.avgDeltaMs) : null,
+  version: "2Win"
 };
 
 try {
@@ -564,7 +565,8 @@ async function flushQueuedScores() {
       time_text: row.time_text,
       time_ms: row.time_ms,
       mode: row.mode,
-      avg_speed_ms: row.avg_speed_ms
+      avg_speed_ms: row.avg_speed_ms,
+      version: row.version || "2Win"
     }]);
 
     if (error) {
