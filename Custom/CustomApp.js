@@ -1369,7 +1369,7 @@ if (elXmlFile) {
     elLoadInfo.textContent = "No XML loaded. Please upload a KeyboardShortCuts XML file.";
   }
 
-  setStatus("Upload an XML file to begin.", "warning");
+  setStatus("Upload an XML file to begin.", "custom");
 
   if (btnStart) btnStart.disabled = true;
 
@@ -1380,7 +1380,7 @@ if (btnStart) btnStart.disabled = shortcuts.length === 0;
 if (shortcuts.length) {
   setStatus("Ready. Press Start.", "ok");
 } else {
-  setStatus("Upload an XML file to begin.", "warning");
+  setStatus("Upload an XML file to begin.", "custom");
 }
 
 startSupabaseMonitor();

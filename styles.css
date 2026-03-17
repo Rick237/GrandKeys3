@@ -41,10 +41,11 @@ body {
   margin: 0;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(255, 176, 32, 0.10), transparent 22%),
-    radial-gradient(circle at top center, rgba(87, 167, 255, 0.10), transparent 24%),
-    radial-gradient(circle at top right, rgba(155, 124, 255, 0.12), transparent 20%),
-    linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  radial-gradient(circle at 15% 0%, rgba(255, 176, 32, 0.30), transparent 25%),
+  radial-gradient(circle at 40% 0%, rgba(87, 167, 255, 0.30), transparent 25%),
+  radial-gradient(circle at 60% 0%, rgba(155, 124, 255, 0.32), transparent 25%),
+  radial-gradient(circle at 85% 0%, rgba(79, 214, 200, 0.35), transparent 25%),
+  linear-gradient(180deg, var(--bg-1), var(--bg-2));
   min-height: 100vh;
 }
 
@@ -708,4 +709,8 @@ textarea {
   .resultsGrid {
     grid-template-columns: 1fr;
   }
+}
+
+.custom {
+  color: var(--custom);
 }
