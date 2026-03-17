@@ -8,10 +8,33 @@ document.addEventListener("DOMContentLoaded", () => {
     ));
   }
 
-  function renderRows(data) {
+  function renderRows(data,listName) {
     if (!data || !data.length) {
       return `<div class="small mono">No entries for this mode.</div>`;
     }
+    
+    classChange = ""
+
+  switch (listName) {
+    case leaderboardList3Win:
+      classChange = "ListThreeWin"
+      break;
+
+      case leaderboardList2Win:
+      classChange = "ListTwoWin"
+      break;
+      
+      case leaderboardList3Mac:
+      classChange = "ListThreeMac"
+      break;
+      
+      case leaderboardListCustom:
+      classChange = "ListCustom"
+      break;
+  
+    default:
+      break;
+  }
 
     return data.map((row, i) => {
       let medal = `${i + 1}.`;
@@ -20,13 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
       else if (i === 2) medal = "🥉";
 
       return `
-        <div class="logItem" style="margin-bottom:10px;">
+        <div class="logItem ${classChange}" style="margin-bottom:10px;">
           <div style="display:flex;justify-content:space-between;gap:12px;">
             <span class="small leaderboardName"><b>${medal}</b> ${escapeHtml(row.name || "Player")}</span>
             
           </div>
 
-          <div class="small mono" style="margin-top:4px;">
+          <div class="small mono " style="margin-top:4px;">
             Acc: ${row.accuracy ?? 0}% ·
             Time: ${escapeHtml(row.time_text || "—")} ·
             Avg: ${row.avg_speed_ms != null ? `${row.avg_speed_ms} ms` : "—"}
@@ -109,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       statusEl.textContent = "online";
-      listEl.innerHTML = renderRows(data);
+      listEl.innerHTML = renderRows(data,listEl);
     } catch (err) {
       statusEl.textContent = "offline";
       listEl.innerHTML = `<div class="small mono">${name}: ${escapeHtml(err.message || "Unexpected error")}</div>`;

@@ -111,14 +111,34 @@ button {
   border: 1px solid #232323;
   color: #e9eefc;
   padding: 10px 12px;
-  border-radius: 10px;
   cursor: pointer;
   font-weight: 700;
 }
 
+.button.ThreeMac
+{
+  background-color: #2f3542;
+}
+.button.TwoWin
+{
+  background-color: #3A3A3A;
+  color: #FFBF00;
+}
+.button.ThreeWin
+{
+  background-color: #3A3A3A;
+}
+.button.Custom
+{
+  background-color: #2c3e50;
+}
+
+
+
 button:hover {
   /*background: #22345c;*/
-  opacity: 0.55;
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,.4)
 }
 
 button:disabled {
@@ -154,22 +174,26 @@ button:disabled {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+.card:hover{
+transform:translateY(-5px);
+transition:.2s;
+}
+
 .card {
   background: #2B2B2B;
-  border: 1px solid #232323;
   padding: 18px;
 }
 
 .card.small-radius {
   padding-left: 10px;
   padding-top: 10px;
-  padding-right: 5px;
+  padding-right: 10px;
   padding-bottom: 5px;
 }
 
 .card.ThreeWin {
 
-  color: defualt;
+  background-color: #414141;
 }
 
 .card.ThreeMac {
@@ -179,7 +203,7 @@ button:disabled {
 color: #FFBF00;
 }
 .card.Custom {
-color: defult;
+background-color: #34495e;
 }
 
 
@@ -313,11 +337,28 @@ color: defult;
 
 .logItem {
   padding: 8px 10px;
-  border: 2px solid #232323;
-  border-radius: 12px;
   margin-bottom: 8px;
   background: #2B2B2B;
 }
+
+.logItem.ListThreeMac
+{
+  background-color: #2f3542;
+}
+.logItem.ListTwoWin
+{
+  background-color: #3A3A3A;
+}
+.logItem.ListThreeWin
+{
+  background-color: #3A3A3A;
+}
+.logItem.ListCustom
+{
+  background-color: #2c3e50;
+}
+
+
 
 .pill {
   background: #2B2B2B;
@@ -430,4 +471,24 @@ textarea {
   display:flex;
   align-items:center;
   gap:8px;
+}
+
+.filter.TwoWin {
+  background-color: #3A3A3A;
+  color: #ffbf00;
+
+}
+.filter.ThreeWin {
+  background-color: #3A3A3A;
+  color: white;
+}
+
+.filter.ThreeMac{
+  background-color: #3A3A3A;
+  color: white;
+}
+
+.filter.Custom {
+  background-color: #2c3e50;
+  color: white;
 }

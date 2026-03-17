@@ -26,13 +26,48 @@
 
     <div class="wrap">
 
+        <!--  MA2Win  -->
+        <div class="card TwoWin small-radius" id="Ma2WindowsCard"> <!--old id leaderboardCard-->
+          <div class="row">
+          <div class="label title"> Ma2 version</div>
+          <div class="small height">This app helps users practice grandMA2 keyboard shortcuts on Windows</div>
+          <a href="./Ma2Win/index.html">
+            <button class="button TwoWin">Click Here</button>
+          </a>
+
+          </div>
+          <div class="row space">
+            <div>
+              <div class="label leaderboard">Leaderboard</div>
+              <div class="small">Top scores with time, mode and avg speed</div>
+            </div>
+
+            <div class="filter">
+              <label for="lbModeFilter2Win" class="small mono">Filter mode:</label>
+              <select class="filter TwoWin" id="lbModeFilter2Win">
+                <option value="all">All</option>
+                <option value="Sequential">Sequential</option>
+                <option value="Random">Random</option>
+                <option value="10 keys">10 keys</option>
+                
+              </select>
+            </div>
+          </div>
+
+          <div class="small mono" style="margin-top:8px;">
+            status: <span id="lbStatus2Win">offline</span>
+          </div>
+
+          <div id="leaderboardList2Win" class="small" style="margin-top:12px;"></div>
+        </div>
+
       <!--  MA3Win  -->
         <div class="card ThreeWin small-radius" id="Ma3WindowsCard"> <!--old id leaderboardCard-->
           <div class="row">
           <div class="label title"> Ma3 Windows</div>
           <div class="small height">This app is a keyboard shortcut trainer designed for MA3PC on Windows. It loads official MA3 shortcuts and challenges users to press the correct key combinations. The app tracks speed, accuracy, and mistakes during each run. Results can be saved to a leaderboard to compare performance with other users.</div>
           <a href="./Ma3Win/index.html">
-            <button>Click Here</button>
+            <button class="button ThreeWin">Click Here</button>
           </a>
 
           </div>
@@ -44,7 +79,7 @@
 
             <div class="filter">
               <label for="lbModeFilter3Win" class="small mono">Filter mode:</label>
-              <select id="lbModeFilter3Win">
+              <select class="filter ThreeWin"id="lbModeFilter3Win">
                 <option value="all">All</option>
                 <option value="Sequential">Sequential</option>
                 <option value="Random">Random</option>
@@ -68,7 +103,7 @@
           <div class="label title"> Ma3 Mac version</div>
           <div class="small height">This version trains grandMA3 keyboard shortcuts on macOS, with support for Mac-specific keys like Option and Command. It presents random or sequential shortcuts and measures how quickly and accurately users respond. Performance statistics are shown after each run.</div>
           <a href="./Ma3Mac/index.html">
-            <button>Click Here</button>
+            <button class="button ThreeMac">Click Here</button>
           </a>
 
           </div>
@@ -80,7 +115,7 @@
 
             <div class="filter">
               <label for="lbModeFilter3Mac" class="small mono">Filter mode:</label>
-              <select id="lbModeFilter3Mac">
+              <select class="filter ThreeMac"id="lbModeFilter3Mac">
                 <option value="all">All</option>
                 <option value="Sequential">Sequential</option>
                 <option value="Random">Random</option>
@@ -98,40 +133,6 @@
         </div>
 
 
-        <!--  MA2Win  -->
-        <div class="card TwoWin small-radius" id="Ma2WindowsCard"> <!--old id leaderboardCard-->
-          <div class="row">
-          <div class="label title"> Ma2 version</div>
-          <div class="small height">This app helps users practice grandMA2 keyboard shortcuts on Windows</div>
-          <a href="./Ma2Win/index.html">
-            <button>Click Here</button>
-          </a>
-
-          </div>
-          <div class="row space">
-            <div>
-              <div class="label leaderboard">Leaderboard</div>
-              <div class="small">Top scores with time, mode and avg speed</div>
-            </div>
-
-            <div class="filter">
-              <label for="lbModeFilter2Win" class="small mono">Filter mode:</label>
-              <select id="lbModeFilter2Win">
-                <option value="all">All</option>
-                <option value="Sequential">Sequential</option>
-                <option value="Random">Random</option>
-                <option value="10 keys">10 keys</option>
-                
-              </select>
-            </div>
-          </div>
-
-          <div class="small mono" style="margin-top:8px;">
-            status: <span id="lbStatus2Win">offline</span>
-          </div>
-
-          <div id="leaderboardList2Win" class="small" style="margin-top:12px;"></div>
-        </div>
 
 
         <!--  Custom  -->
@@ -141,9 +142,9 @@
           <div class="label title"> Custom version</div>
           <div class="small height">This version allows users to train any set of shortcuts by loading their own XML file. The app reads the custom shortcut definitions and generates practice sessions automatically. It records speed, accuracy, and attempt statistics for each run. This makes it useful for learning custom workflows or other software shortcuts.
 
-          <br><a class="white warning" href="OGKeyboardShortCutsOriginal.xml">Example of XML FILE</a></div>
+          <br><br><a class="white warning" href="OGKeyboardShortCutsOriginal.xml">Example of XML FILE</a></div>
           <a href="./Custom/index.html">
-            <button>Click Here</button>
+            <button class="button Custom">Click Here</button>
           </a>
 
           </div>
@@ -155,7 +156,7 @@
 
             <div class="filter">
               <label for="lbModeFilterCustom" class="small mono">Filter mode:</label>
-              <select id="lbModeFilterCustom">
+              <select class="filter Custom" id="lbModeFilterCustom">
                 <option value="all">All</option>
                 <option value="Sequential">Sequential</option>
                 <option value="Random">Random</option>
@@ -190,7 +191,7 @@
     <div class="bottombar">
        <div class="bottominner">
         <div class=" small">Not Affiliated with MA Lighting International GmbH</div> 
-        <div class=" small">Tested on Windows 11- Chrome/Firefox</div>
+        <div class=" small">Tested on Windows 11 - Mac OS</div>
         <div class=" small">Made by Rick237</div>
         <div class=" small">This work is licensed under <a class="white" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></div>
         
