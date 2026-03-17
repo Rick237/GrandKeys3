@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Keyboard Shortcut Tester V1.0.0</title>
     <meta http-equiv="Cache-Control" content="no-store" />
-    <link rel="icon" href="./favicon.ico">
+    <link rel="icon" href="./favicon.ico" />
     <link rel="stylesheet" href="./styles.css" />
     <script type="module">
       import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
       window.supabase = { createClient };
     </script>
   </head>
@@ -21,205 +20,212 @@
           <h1>Keyboard Shortcut tester V1.0.0</h1>
         </div>
       </div>
-      <div class="topinner secondrow small">Learn and get faster using the keyboard shortcut with this tool for GrandMA on PC</div>
+      <div class="topinner secondrow">
+        Learn and get faster using the keyboard shortcut with this tool for GrandMA on PC
+      </div>
     </div>
 
     <div class="wrap">
+      <!-- MA2Win -->
+      <div class="card TwoWin small-radius" id="Ma2WindowsCard">
+        <div class="row">
+          <div class="label title">Ma2 version</div>
+        </div>
 
-        <!--  MA2Win  -->
-        <div class="card TwoWin small-radius" id="Ma2WindowsCard"> <!--old id leaderboardCard-->
-          <div class="row">
-          <div class="label title"> Ma2 version</div>
-          <div class="small height">This app helps users practice grandMA2 keyboard shortcuts on Windows</div>
+        <div class="small height">
+          This app helps users practice grandMA2 keyboard shortcuts on Windows
+        </div>
+
+        <div class="mt12">
           <a href="./Ma2Win/index.html">
             <button class="button TwoWin">Click Here</button>
           </a>
-
-          </div>
-          <div class="row space">
-            <div>
-              <div class="label leaderboard">Leaderboard</div>
-              <div class="small">Top scores with time, mode and avg speed</div>
-            </div>
-
-            <div class="filter">
-              <label for="lbModeFilter2Win" class="small mono">Filter mode:</label>
-              <select class="filter TwoWin" id="lbModeFilter2Win">
-                <option value="all">All</option>
-                <option value="Sequential">Sequential</option>
-                <option value="Random">Random</option>
-                <option value="10 keys">10 keys</option>
-                
-              </select>
-            </div>
-          </div>
-
-          <div class="small mono" style="margin-top:8px;">
-            status: <span id="lbStatus2Win">offline</span>
-          </div>
-
-          <div id="leaderboardList2Win" class="small" style="margin-top:12px;"></div>
         </div>
 
-      <!--  MA3Win  -->
-        <div class="card ThreeWin small-radius" id="Ma3WindowsCard"> <!--old id leaderboardCard-->
-          <div class="row">
-          <div class="label title"> Ma3 Windows</div>
-          <div class="small height">This app is a keyboard shortcut trainer designed for MA3PC on Windows. It loads official MA3 shortcuts and challenges users to press the correct key combinations. The app tracks speed, accuracy, and mistakes during each run. Results can be saved to a leaderboard to compare performance with other users.</div>
+        <div class="row space">
+          <div>
+            <div class="label leaderboard">Leaderboard</div>
+            <div class="small">Top scores with time, mode and avg speed</div>
+          </div>
+
+          <div class="filter">
+            <label for="lbModeFilter2Win" class="small mono">Filter mode:</label>
+            <select class="filter TwoWin" id="lbModeFilter2Win">
+              <option value="all">All</option>
+              <option value="Sequential">Sequential</option>
+              <option value="Random">Random</option>
+              <option value="10 keys">10 keys</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="small mono" style="margin-top:8px;">
+          status: <span id="lbStatus2Win">offline</span>
+        </div>
+
+        <div id="leaderboardList2Win" class="small" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- MA3Win -->
+      <div class="card ThreeWin small-radius" id="Ma3WindowsCard">
+        <div class="row">
+          <div class="label title">Ma3 Windows</div>
+        </div>
+
+        <div class="small height">
+          This app is a keyboard shortcut trainer designed for MA3PC on Windows. It loads official MA3 shortcuts and challenges users to press the correct key combinations. The app tracks speed, accuracy, and mistakes during each run. Results can be saved to a leaderboard to compare performance with other users.
+        </div>
+
+        <div class="mt12">
           <a href="./Ma3Win/index.html">
             <button class="button ThreeWin">Click Here</button>
           </a>
-
-          </div>
-          <div class="row space">
-            <div>
-              <div class="label leaderboard">Leaderboard</div>
-              <div class="small">Top scores with time, mode and avg speed</div>
-            </div>
-
-            <div class="filter">
-              <label for="lbModeFilter3Win" class="small mono">Filter mode:</label>
-              <select class="filter ThreeWin"id="lbModeFilter3Win">
-                <option value="all">All</option>
-                <option value="Sequential">Sequential</option>
-                <option value="Random">Random</option>
-                <option value="10 keys">10 keys</option>
-                
-              </select>
-            </div>
-          </div>
-
-          <div class="small mono" style="margin-top:8px;">
-            status: <span id="lbStatus3Win">offline</span>
-          </div>
-
-          <div id="leaderboardList3Win" class="small" style="margin-top:12px;"></div>
         </div>
 
+        <div class="row space">
+          <div>
+            <div class="label leaderboard">Leaderboard</div>
+            <div class="small">Top scores with time, mode and avg speed</div>
+          </div>
 
-        <!--  MA3Mac  -->
-        <div class="card ThreeMac small-radius" id="Ma3WMacCard"> <!--old id leaderboardCard-->
-          <div class="row">
-          <div class="label title"> Ma3 Mac version</div>
-          <div class="small height">This version trains grandMA3 keyboard shortcuts on macOS, with support for Mac-specific keys like Option and Command. It presents random or sequential shortcuts and measures how quickly and accurately users respond. Performance statistics are shown after each run.</div>
+          <div class="filter">
+            <label for="lbModeFilter3Win" class="small mono">Filter mode:</label>
+            <select class="filter ThreeWin" id="lbModeFilter3Win">
+              <option value="all">All</option>
+              <option value="Sequential">Sequential</option>
+              <option value="Random">Random</option>
+              <option value="10 keys">10 keys</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="small mono" style="margin-top:8px;">
+          status: <span id="lbStatus3Win">offline</span>
+        </div>
+
+        <div id="leaderboardList3Win" class="small" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- MA3Mac -->
+      <div class="card ThreeMac small-radius" id="Ma3WMacCard">
+        <div class="row">
+          <div class="label title">Ma3 Mac version</div>
+        </div>
+
+        <div class="small height">
+          This version trains grandMA3 keyboard shortcuts on macOS, with support for Mac-specific keys like Option and Command. It presents random or sequential shortcuts and measures how quickly and accurately users respond. Performance statistics are shown after each run.
+        </div>
+
+        <div class="mt12">
           <a href="./Ma3Mac/index.html">
             <button class="button ThreeMac">Click Here</button>
           </a>
-
-          </div>
-          <div class="row space">
-            <div>
-              <div class="label leaderboard">Leaderboard</div>
-              <div class="small">Top scores with time, mode and avg speed</div>
-            </div>
-
-            <div class="filter">
-              <label for="lbModeFilter3Mac" class="small mono">Filter mode:</label>
-              <select class="filter ThreeMac"id="lbModeFilter3Mac">
-                <option value="all">All</option>
-                <option value="Sequential">Sequential</option>
-                <option value="Random">Random</option>
-                <option value="10 keys">10 keys</option>
-                
-              </select>
-            </div>
-          </div>
-
-          <div class="small mono" style="margin-top:8px;">
-            status: <span id="lbStatus3Mac">offline</span>
-          </div>
-
-          <div id="leaderboardList3Mac" class="small" style="margin-top:12px;"></div>
         </div>
 
+        <div class="row space">
+          <div>
+            <div class="label leaderboard">Leaderboard</div>
+            <div class="small">Top scores with time, mode and avg speed</div>
+          </div>
 
+          <div class="filter">
+            <label for="lbModeFilter3Mac" class="small mono">Filter mode:</label>
+            <select class="filter ThreeMac" id="lbModeFilter3Mac">
+              <option value="all">All</option>
+              <option value="Sequential">Sequential</option>
+              <option value="Random">Random</option>
+              <option value="10 keys">10 keys</option>
+            </select>
+          </div>
+        </div>
 
+        <div class="small mono" style="margin-top:8px;">
+          status: <span id="lbStatus3Mac">offline</span>
+        </div>
 
-        <!--  Custom  -->
+        <div id="leaderboardList3Mac" class="small" style="margin-top:12px;"></div>
+      </div>
 
-        <div class="card Custom small-radius" id="Custom Card"> <!--old id leaderboardCard-->
-          <div class="row">
-          <div class="label title"> Custom version</div>
-          <div class="small height">This version allows users to train any set of shortcuts by loading their own XML file. The app reads the custom shortcut definitions and generates practice sessions automatically. It records speed, accuracy, and attempt statistics for each run. This makes it useful for learning custom workflows or other software shortcuts.
+      <!-- Custom -->
+      <div class="card Custom small-radius" id="CustomCard">
+        <div class="row">
+          <div class="label title">Custom version</div>
+        </div>
 
-          <br><br><a class="white warning" href="OGKeyboardShortCutsOriginal.xml">Example of XML FILE</a></div>
+        <div class="small height">
+          This version allows users to train any set of shortcuts by loading their own XML file. The app reads the custom shortcut definitions and generates practice sessions automatically. It records speed, accuracy, and attempt statistics for each run. This makes it useful for learning custom workflows or other software shortcuts.
+          <br /><br />
+          <a class="warning" href="OGKeyboardShortCutsOriginal.xml">Example of XML FILE</a>
+        </div>
+
+        <div class="mt12">
           <a href="./Custom/index.html">
             <button class="button Custom">Click Here</button>
           </a>
-
-          </div>
-          <div class="row space">
-            <div>
-              <div class="label leaderboard">Leaderboard</div>
-              <div class="small">Top scores with time, mode and avg speed</div>
-            </div>
-
-            <div class="filter">
-              <label for="lbModeFilterCustom" class="small mono">Filter mode:</label>
-              <select class="filter Custom" id="lbModeFilterCustom">
-                <option value="all">All</option>
-                <option value="Sequential">Sequential</option>
-                <option value="Random">Random</option>
-                <option value="10 keys">10 keys</option>
-                
-              </select>
-            </div>
-          </div>
-
-          <div class="small mono" style="margin-top:8px;">
-            status: <span id="lbStatusCustom">offline</span>
-          </div>
-
-          <div id="leaderboardListCustom" class="small" style="margin-top:12px;"></div>
         </div>
+
+        <div class="row space">
+          <div>
+            <div class="label leaderboard">Leaderboard</div>
+            <div class="small">Top scores with time, mode and avg speed</div>
+          </div>
+
+          <div class="filter">
+            <label for="lbModeFilterCustom" class="small mono">Filter mode:</label>
+            <select class="filter Custom" id="lbModeFilterCustom">
+              <option value="all">All</option>
+              <option value="Sequential">Sequential</option>
+              <option value="Random">Random</option>
+              <option value="10 keys">10 keys</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="small mono" style="margin-top:8px;">
+          status: <span id="lbStatusCustom">offline</span>
+        </div>
+
+        <div id="leaderboardListCustom" class="small" style="margin-top:12px;"></div>
+      </div>
     </div>
 
-   <!-- <div class="card small-radius" id="3MacCard">
-    </div> 
-    <div class="card small-radius" id="2WinowsCard">
-    </div> 
-    <div class="card small-radius" id="CustomCard">
-    </div>  -->
-
-      <!-- LEADERBOARD MOVED TO LEFT -->
-        
-      
-    </div>
-
-
-<!-- MODE PICKER MODAL -->
     <div class="bottombar">
-       <div class="bottominner">
-        <div class=" small">Not Affiliated with MA Lighting International GmbH</div> 
-        <div class=" small">Tested on Windows 11 - Mac OS</div>
-        <div class=" small">Made by Rick237</div>
-        <div class=" small">This work is licensed under <a class="white" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"></div>
-        
-       </div>
+      <div class="bottominner">
+        <div class="small">Not Affiliated with MA Lighting International GmbH</div>
+        <div class="small">Tested on Windows 11 - Mac OS</div>
+        <div class="small">Made by Rick237</div>
+        <div class="small">
+          This work is licensed under
+          <a class="white" href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>
+          <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;">
+          <img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;">
+          <img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width:1em;max-height:1em;margin-left:.2em;">
+        </div>
+      </div>
     </div>
 
     <div class="modalBackdrop" id="welcomeModal" aria-hidden="true">
-  <div class="modal">
-    <div class="modalTitle">Welcome to the GrandMA2 Keyboard Shortcut Tester</div>
+      <div class="modal">
+        <div class="modalTitle">Welcome to the GrandMA2 Keyboard Shortcut Tester</div>
 
-    <div class="modalBody small welcomeModal">
-      Learn or beat the record.
-      <br><br>
-      Press <b>Start</b> to begin testing keyboard shortcuts on the top right corner.<br><br>
-      This tool use the default shortcut in the MA3onPC file. <br><br>
+        <div class="modalBody small welcomeModal">
+          Learn or beat the record.
+          <br><br>
+          Press <b>Start</b> to begin testing keyboard shortcuts on the top right corner.<br><br>
+          This tool use the default shortcut in the MA3onPC file. <br><br>
 
-      Known errors:<br>
-      Sometimes the <b>Leaderboard</b> is not loading just refresh the page<br>
-      Some of the Shortcut are <b>disabled</b> because of the limitation of running on webpage. <br>
-      
-      <a class="white" href="./KeyboardShortCuts.xml">Click here</a> to see the full list of Shortcuts
+          Known errors:<br>
+          Sometimes the <b>Leaderboard</b> is not loading just refresh the page<br>
+          Some of the Shortcut are <b>disabled</b> because of the limitation of running on webpage. <br>
+
+          <a class="white" href="./KeyboardShortCuts.xml">Click here</a> to see the full list of Shortcuts
+        </div>
+
+        <div class="modalActions">
+          <button id="btnCloseWelcome">Close</button>
+        </div>
+      </div>
     </div>
-
-    <div class="modalActions">
-      <button id="btnCloseWelcome">Close</button>
-    </div>
-  </div>
-</div>
 
     <script src="./app.js"></script>
   </body>
